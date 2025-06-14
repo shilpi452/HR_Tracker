@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browse Jobs</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/candidate_table.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f6f8;
+        }
+        .container {
+            width: 1500px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #232946;
+            margin-bottom: 20px;
+            text-align: center;
+            
+            font-style: normal;
+            text-decoration-thickness: 2px;
+            font-weight: bold;
+            text-decoration-color: #eebbc3;
+            font-size: 36px;
+            font-family: 'Arial', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        .home-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #7685dd;
+            color: #232946;
+            border: none;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 15px;
+            margin-bottom: 20px;
+            margin-right: 10px;
+            transition: background 0.2s, color 0.2s;
+        }
+            
+        
+        .home-btn:hover {
+            background: #232946;
+            color: #ddd0f6;
+            ;
+        }
+        .assign-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-bottom: 20px;
+            margin-left: 10px;
+            transition: background 0.2s, color 0.2s;
+        }
+        .assign-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(41, 128, 185, 0.3);
+        }
+        .button-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 20px;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            th:first-child {
+                border-top-left-radius: 12px;
+            }
+            th:last-child {
+                border-top-right-radius: 12px;
+            }
+            tr:last-child td:first-child {
+                border-bottom-left-radius: 12px;
+            }
+            tr:last-child td:last-child {
+                border-bottom-right-radius: 12px;
+            }
+            th:last-child { /* Action column header */
+                text-align: center;
+            }
+            td:last-child { /* Action column */
+                min-width: 220px;
+                text-align: center;
+                padding: 12px 8px;
+            }
+            .btn-action, .btn-danger {
+                display: inline-block;
+                padding: 8px 16px;
+                margin: 0 6px;
+                border-radius: 6px;
+                font-weight: 500;
+                font-size: 13px;
+                transition: all 0.2s ease;
+                min-width: 90px;
+            }
+            .btn-action {
+                background-color: #4CAF50;
+                color: white;
+                border: none;
+                box-shadow: 0 2px 4px rgba(76, 175, 80, 0.2);
+            }
+            .btn-danger {
+                background-color: #e74c3c;
+                color: white;
+                border: none;
+                box-shadow: 0 2px 4px rgba(231, 76, 60, 0.2);
+            }
+            .btn-action:hover, .btn-danger:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            }
+        }
+        th, td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid #edf2f7;
+            font-size: 14px;
+        }
+        th {
+            background-color: #232946;
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 13px;
+            letter-spacing: 0.5px;
+        }
+        tr:hover {
+            background-color: #f8fafc;
+            transition: background-color 0.2s ease;
+        }
+        td:nth-child(10) { /* Created Date column */
+            min-width: 150px;
+            white-space: nowrap;
+        }
+        td:last-child { /* Action column */
+            min-width: 200px;
+            text-align: center;
+        }
+        .btn-action, .btn-danger {
+            display: inline-block;
+            padding: 8px 16px;
+            margin: 0 4px;
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 13px;
+            transition: all 0.2s ease;
+        }
+        .btn-action {
+            display: inline-block;
+            padding: 6px 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            box-shadow: 0 2px 4px rgba(76, 175, 80, 0.2);
+        }
+        .btn-danger {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            box-shadow: 0 2px 4px rgba(231, 76, 60, 0.2);
+        }
+        .btn-action:hover, .btn-danger:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+        .btn-action:hover {
+            background-color: #45a049;
+        }
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        td {
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="button-container">
+            {% if session['role'] == 'user' %}
+                <a href="{{ url_for('user_dashboard') }}" class="home-btn">HOD</a>
+            {% endif %}
+            {% if session['role'] == 'hr' %}
+                <a href="{{ url_for('hr_dashboard') }}" class="home-btn">HR</a>
+            {% endif %}
+        </div>
+        <h1>Jobs Openings</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Job ID</th>
+                    <TH>Dept ID</TH>
+                    <th>HOD ID</th>
+                    <th>HR ID</th>
+                    <th>Recruiter ID</th>
+                
+                    <th>Position</th>
+                    <th>Skills</th>
+                    <th>Experience</th>
+                    <th>Status</th>
+                    <th>Created Date</th>
+                    <th>Created By</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for job in jobs %}
+                <tr>
+                    <td>{{ job.job_id }}</td>
+                    <td>{{ job.dept_id }}</td>
+                    <td>{{ job.hod_id }}</td>
+                    <td>{{ job.hr_id }}</td>
+                    <td>{{ job.recruiter_id }}</td>
+                    <td>{{ job.position }}</td>
+                    <td>{{ job.skills }}</td>
+                    <td>{{ job.experience }}</td>
+                    <td >{{ job.status }}</td>
+                    <td>{{ job.created_date }}</td>
+                    <!-- <div class="form-group">
+                        <label>Created Date</label>
+                        <input type="datetime-local" name="Created_Date" class="form-control" 
+                               value="{{ formated_datetime }}" required>
+                    </div> -->
+                    <td>{{ job.created_by }}</td>
+                    <td>
+                        <a href="{{ url_for('assign_job', job_id=job.job_id) }}" class="btn-action">Assign Job</a>
+                        
+                        <form action="{{ url_for('delete_job', job_id=job.job_id) }}" method="POST" style="display: inline;">
+                            <button type="submit" class="btn-danger" onclick="return confirm('Are you sure you want to delete this job?')">Delete</button>
+                        </form>
+                        
+                    </td>
+                    
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <style>
+        .btn-danger {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        </style>
+    </div>
+</body>
+</html>

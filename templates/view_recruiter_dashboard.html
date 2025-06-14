@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recruiter Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/candidate_table.css') }}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            overflow-x: hidden;
+        }
+        
+        /* Dashboard layout */
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Navbar styling */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 56px;
+            background-color: #343a40;
+            z-index: 1030;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        /* Sidebar styling */
+        .sidebar {
+            width: 250px;
+            background-color: #2c3e50;
+            color: white;
+            position: fixed;
+            top: 56px;
+            left: 0;
+            bottom: 0;
+            overflow-y: auto;
+            z-index: 1020;
+            padding-top: 20px;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .sidebar-menu li a {
+            color: #bdc3c7;
+            padding: 12px 20px;
+            display: block;
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+        }
+        
+        .sidebar-menu li a:hover,
+        .sidebar-menu li a.active {
+            background-color: #34495e;
+            color: white;
+            border-left: 4px solid #007bff;
+            padding-left: 25px;
+        }
+        
+        .sidebar-menu i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* Main content area */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            margin-top: 56px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        
+        /* Welcome header */
+        .welcome-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        /* Stats cards */
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .stats-card {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stats-icon {
+            font-size: 2.5rem;
+            opacity: 0.8;
+        }
+        
+        /* Table container */
+        .table-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .table-header {
+            background-color: #007bff;
+            color: white;
+            padding: 15px 20px;
+        }
+        
+        .table-responsive {
+            overflow-x: auto;
+            padding: 0;
+        }
+        
+        .table {
+            width: 100%;
+            margin-bottom: 0;
+        }
+        
+        
+        .table th {
+            background-color: #f8f9fa;
+            border-top: none;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            white-space: nowrap;
+            font-size: 0.9rem;
+            }
+            
+        .table td {
+            vertical-align: middle;
+            font-size: 0.85rem;
+            }
+            
+            /* Status column with button styling */
+        /* Status column with button styling */
+        .status-cell {
+            display: flex;
+            align-items: center;
+        }
+
+        .status-select {
+            width: auto;
+            min-width: 70px; /* Reduced width */
+            font-size: 0.85rem;
+        }
+
+        .status-cell .btn {
+            flex-shrink: 0;
+            margin-left: 5px;
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .status-cell .btn i {
+            font-size: 0.9rem;
+        }
+        
+        .table-responsive {
+            overflow-x: auto;
+            padding: 0;
+        }
+        
+        .table {
+            width: 100%;
+            margin-bottom: 0;
+        }
+        
+        /* Content sections */
+        .content-section {
+            margin-bottom: 30px;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 200px;
+            }
+            .main-content {
+                margin-left: 200px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 250px;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            .toggle-sidebar {
+                display: block !important;
+            }
+        }
+        
+        /* Toggle sidebar button (hidden by default) */
+        .toggle-sidebar {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1040;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #007bff;
+            color: white;
+            text-align: center;
+            line-height: 50px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        .btn {
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        
+        
+        }
+
+        .modal-dialog.modal-lg {
+            max-width: 700px; /* Increase width as needed */
+        }
+        .modal-content {
+            min-height: 300px; /* Decrease height as needed */
+            max-height: 500px; /* Optional: set a max height */
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-users-cog mr-2"></i>Recruiter Portal
+            </a>
+            <div class="navbar-nav ml-auto">
+                <span class="nav-item nav-link text-light">
+                    <i class="fas fa-user mr-2"></i>{{ hr_recruiters.recruiter_name }}
+                </span>
+                <a class="nav-item nav-link" href="{{ url_for('logout') }}">
+                    <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                </a>
+            </div>
+        </nav>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="#" onclick="showSection('dashboard-section')" class="active">
+                        <i class="fas fa-tachometer-alt"></i>Dashboard
+                    </a>
+                </li>
+                
+                <li>
+                    <a href="/Candidates" onclick="showSection('candidates-section')">
+                        <i class="fas fa-user-plus"></i>Candidates
+                    </a>
+                </li>
+               
+                <li>
+                    <a href="/position_closure" onclick="showSection('position-closure-section')">
+                        <i class="fas fa-check-circle"></i> Position Closure
+                      </a>
+                      
+                </li>
+                <li>
+                    <a href="/position_closure" onclick="showSection('reports-section')">
+                        <i class="fas fa-chart-bar"></i>Reports
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('candidate_joined') }}">
+                        <i class="fas fa-user-check"></i> Candidates Joined
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Section -->
+            <div id="dashboard-section" class="content-section">
+                <!-- Welcome Header -->
+                <div class="welcome-header">
+                    <h2>Welcome, {{ recruiter_name }}</h2>
+                    
+                </div>
+
+                <!-- Statistics Cards -->
+                <div class="stats-cards">
+                    <div class="stats-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-subtitle mb-2">Active Jobs</h6>
+                                <h2 class="mb-0" id="active-jobs-count">{{ jobs|length }}</h2>
+                            </div>
+                            <i class="fas fa-briefcase stats-icon"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-subtitle mb-2">Success Rate</h6>
+                                <h2 class="mb-0">85%</h2>
+                            </div>
+                            <i class="fas fa-chart-line stats-icon"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-card">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-subtitle mb-2">Total CVs</h6>
+                                <h2 class="mb-0" id="total-cvs-count">0</h2>
+                            </div>
+                            <i class="fas fa-file-alt stats-icon"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Assigned Jobs Table -->
+                <div class="table-container">
+                    <div class="table-header">
+                        <h5 class="mb-0"><i class="fas fa-tasks mr-2"></i>Assigned Jobs</h5>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th><i class="fas fa-id-badge mr-2"></i>Job ID</th>
+                                    <th><i class="fas fa-id-badge mr-2"></i>Recruiter ID</th>
+                                    <th><i class="fas fa-id-badge mr-2"></i>Recruiter Name</th>
+                                    <th><i class="fas fa-user-tie mr-2"></i>HR Manager</th>
+                                    <th><i class="fas fa-building mr-2"></i>Department</th>
+                                    <th><i class="fas fa-user-shield mr-2"></i>HOD Name</th>
+                                    <th><i class="fas fa-user-shield mr-2"></i>Hod ID </th>
+                                    <th><i class="fas fa-briefcase mr-2"></i>Position</th>
+                                    <th><i class="fas fa-calendar-alt mr-2"></i>Assigned Date</th>
+                                    <th><i class="fas fa-envelope mr-2"></i>Email</th>
+                                    <th><i class="fas fa-info-circle mr-2"></i>Status</th>
+                                    <th><i class="fas fa-plus-circle mr-2"></i>Add Candidate</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for job in jobs %}
+                                <tr>
+                                    <td>{{ job.job_id }}</td>
+                                    <td>{{ job.recruiter_id }}</td>
+                                    <td>{{ job.recruiter_name }}</td>
+                                    <td>{{ job.hr_name }}</td>
+                                    <td>{{ job.dept_name }}</td>
+                                    <td>{{ job.hod_name }}</td>
+                                    <td>{{ job.hod_id }}</td>
+                                    <td>{{ job.position }}</td>
+                                    <td>{{ job.assigned_date }}</td>
+                                    <td>{{ job.recruiter_email }}</td>
+                                    <!-- Status column without the button -->
+                                    <td>
+                                        <select class="form-control status-select badge-{{ 'success' if job.status == 'Open' else 'secondary' if job.status == 'Closed' else 'warning' }}" style="cursor: pointer; padding: 0.25rem 0.5rem;">
+                                            <option value="Open" {% if job.status == 'Open' %}selected{% endif %}>Open</option>
+                                            <option value="Closed" {% if job.status == 'Closed' %}selected{% endif %}>Closed</option>
+                                            <option value="On Hold" {% if job.status == 'On Hold' %}selected{% endif %}>On Hold</option>
+                                        </select>
+                                    </td>
+                                    <!-- New column for the Add button -->
+                                    <td>
+                                        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#addCandidateModal{{ job.recruiter_id }}">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- CV Tracking Table -->
+                <div class="table-container">
+                    <div class="table-header">
+                        <h5 class="mb-0"><i class="fas fa-file-alt mr-2"></i>CV Tracking</h5>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th><i class="fas fa-briefcase mr-2"></i>Position</th>
+                                    <th><i class="fas fa-file-alt mr-2"></i>Number of CVs</th>
+                                    <th><i class="fas fa-save mr-2"></i>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% set positions = [] %}
+                                {% for job in jobs %}
+                                    {% if job.position not in positions %}
+                                        {% set _ = positions.append(job.position) %}
+                                        <tr>
+                                            <td>{{ job.position }}</td>
+                                            <td>
+                                                <select class="form-control form-control-sm cv-count-select" 
+                                                        data-position="{{ job.position }}">
+                                                    <option value="">Select</option>
+                                                    {% for i in range(1, 51) %}
+                                                        <option value="{{ i }}">{{ i }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-success save-cv-count" data-position="{{ job.position }}">
+                                                    <i class="fas fa-save"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+           
+            
+            
+            
+            <!-- Reports Section -->
+            <div id="reports-section" class="content-section" style="display: none;">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h5 class="mb-0"><i class="fas fa-chart-bar mr-2"></i>Reports</h5>
+                    </div>
+                    <div class="p-4">
+                        <p>Reports content will go here.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Mobile Toggle Button -->
+    <div class="toggle-sidebar">
+        <i class="fas fa-bars"></i>
+    </div>
+
+   
+
+    <!-- JavaScript for toggling interview rounds dropdown -->
+    <script>
+        function toggleInterviewRounds(statusSelect, recruiterId) {
+            const interviewRoundsDiv = document.getElementById('interviewRoundsDiv' + recruiterId);
+            const interviewRoundSelect = document.getElementById('interviewRound' + recruiterId);
+            
+            if (statusSelect.value === 'Interviewed') {
+                interviewRoundsDiv.style.display = 'block';
+                interviewRoundSelect.setAttribute('required', 'required');
+            } else {
+                interviewRoundsDiv.style.display = 'none';
+                interviewRoundSelect.removeAttribute('required');
+                interviewRoundSelect.value = '';
+            }
+        }
+    </script>
+
+    </div>
+
+    <!-- Add Candidate Modals -->
+    {% for job in jobs %}
+    <div class="modal fade" id="addCandidateModal{{ job.recruiter_id }}" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title"><i class="fas fa-user-plus mr-2"></i>Add New Candidate</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{ url_for('add_candidate') }}" method="POST" enctype="multipart/form-data"> 
+                        <input type="text" name="recruiter_id" value="{{ job.recruiter_id }}">
+                        <input type="text" name="recruiter_name" value="{{ job.recruiter_name }}">
+                        <input type="text" name="hr_name" value="{{ job.hr_name }}">
+                        <input type="text" name="dept_name" value="{{ job.dept_name }}">
+                        <input type="text" name="hod_name" value="{{ job.hod_name }}">
+                        <input type="text" name="hod_id" value="{{ job.hod_id }}">
+                        <input type="text" name="position" value="{{ job.position }}">
+                        <input type="text" name="job_id" value="{{ job.job_id }}">
+                        
+                       
+                        
+                      
+                        <!-- Interview Rounds dropdown (initially hidden) -->
+                       
+                        
+                        <div class="form-group">
+                            <label>Candidate Name</label>
+                            <input type="text" name="candidate_name" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" name="candidate_email" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Phone</label>
+                            <input type="tel" name="candidate_phone" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Address</label>
+                            <textarea name="candidate_address" class="form-control" required></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Education</label>
+                            <input type="text" name="candidate_education" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Skills</label>
+                            <input type="text" name="candidate_skills" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Experience (Years)</label>
+                            <input type="number" name="candidate_experience" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Current Company</label>
+                            <input type="text" name="current_company" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Current Designation</label>
+                            <input type="text" name="current_designation" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Current Salary</label>
+                            <input type="number" name="current_salary" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Expected Salary</label>
+                            <input type="number" name="expected_salary" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Current Location</label>
+                            <input type="text" name="current_location" class="form-control" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Current Industry</label>
+                            <input type="text" name="current_industry" class="form-control" required>
+                        </div>
+
+                       
+
+                        <!-- <div class="form-group">
+                            <label>Status</label>
+                            <input type="text" name="status" class="form-control" required >
+                                
+                                
+                            </select>
+                        </div> -->
+                        
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary modal-btn-cancel" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary modal-btn-submit">Add Candidate</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    <!-- Add this after your existing tables -->
+<div class="table-container">
+    <div class="table-header">
+        <h5 class="mb-0"><i class="fas fa-users mr-2"></i>Joined Candidates</h5>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Closure_ID</th>
+                    <th>Candidate Name</th>
+                    <th>Job ID</th>
+                    <th>Hr Name</th>
+                    <th>Recruiter Name</th>
+                    <th>Recruiter_ID</th>
+                    <th>Hod Name</th>
+                    <th>Dept Name</th>
+                    <th>Position</th>
+                    <th>Location</th>
+                    <th>Salary Bracket</th>
+                    <th>DOJ</th>
+                    <th>Candidate ID</th>
+                    <th>Remarks</th>
+                    <th>Offered Salary </th>
+                    <th>Joining Bonus </th>               
+                    <th>Status</th>
+                                      
+                </tr>
+            </thead>
+            <tbody>
+                {% for candidate in joined_candidates %}
+                <tr>
+                    <td>{{ candidate.Closure_ID }}</td>
+                    <td>{{ candidate.candidate_name }}</td>
+                    <td>{{ candidate.job_id }}</td>
+                    <td>{{ candidate.hr_name }}</td>
+                    <td>{{ candidate.recruiter_name }}</td>
+                    <td>{{ candidate.recruiter_id }}</td>
+                    <td>{{ candidate.hod_name }}</td>
+                    <td>{{ candidate.dept_name }}</td>
+                    <td>{{ candidate.position }}</td>
+                    <td>{{ candidate.location }}</td>
+                    <td>{{ candidate.salary_bracket }}</td>
+                    <td>{{ candidate.doj }}</td>
+                    <td>{{ candidate.candidate_id }}</td>
+                    <td>{{ candidate.remarks }}</td>
+                    <td>{{ candidate.offered_salary }}</td>
+                    <td>{{ candidate.joining_bonus }}</td>
+                    <td>{{ candidate.status }}</td>
+                    
+                    
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+
+   
+      
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    // Add this script at the end of the file before closing body tag
+    <script>
+        function calculateTotalCVs() {
+            let total = 0;
+            document.querySelectorAll('.cv-count-select').forEach(select => {
+                if (select.value) {
+                    total += parseInt(select.value);
+                }
+            });
+            document.getElementById('total-cvs-count').textContent = total;
+        }
+
+        // Calculate on page load
+        document.addEventListener('DOMContentLoaded', calculateTotalCVs);
+
+        // Recalculate when any CV count changes
+        document.querySelectorAll('.cv-count-select').forEach(select => {
+            select.addEventListener('change', calculateTotalCVs);
+        });
+    </script>
+    <script>
+        // Function to show sections
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // Show the selected section
+            document.getElementById(sectionId).style.display = 'block';
+            
+            // Update active state in sidebar
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('onclick') && link.getAttribute('onclick').includes(sectionId)) {
+                    link.classList.add('active');
+                }
+            });
+        }
+        
+    </script>
+
+    
+    <style>
+        /* Modal footer button styling */
+        .modal-footer {
+            border-top: 1px solid #e9ecef;
+            padding: 1rem;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .modal-btn-cancel, .modal-btn-submit {
+            border-radius: 4px !important;
+            padding: 8px 16px !important;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+            width: auto !important;
+            height: auto !important;
+            display: inline-block !important;
+            font-size: 0.9rem !important;
+        }
+        
+        .modal-btn-cancel {
+            background-color: #6c757d;
+            border-color: #6c757d;
+            color: white;
+        }
+        
+        .modal-btn-cancel:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        
+        .modal-btn-submit {
+            background-color: #007bff;
+            border-color: #007bff;
+            color: white;
+        }
+        
+        .modal-btn-submit:hover {
+            background-color: #0069d9;
+            border-color: #0062cc;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            transform: translateY(-1px);
+        }
+        
+        /* Fix for button icon alignment */
+        .modal-btn-submit i, .modal-btn-cancel i {
+            margin-right: 5px;
+        }
+    </style>
+
+
+
+
+ 
+</body>
+</html>       
+        
+       

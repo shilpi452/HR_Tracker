@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/candidate_table.css') }}">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f1c40f;
+            --danger-color: #e74c3c;
+            --light-gray: #f8f9fa;
+            --border-radius: 10px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 2rem;
+            color: var(--secondary-color);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 2.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--secondary-color);
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            position: relative;
+            padding-bottom: 1rem;
+        }
+
+        h1::after {
+            content: '';
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 4px;
+            background: var(--primary-color);
+            border-radius: 2px;
+        }
+
+        .form-group {
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            color: var(--secondary-color);
+            font-size: 1.1rem;
+        }
+
+        .form-group input{
+            width: 97%;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            background-color: white;
+            appearance: none;
+
+        }
+        .form-group select
+        {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            
+            background-color: white;
+            appearance: none;
+        }
+
+        .form-group select {
+            /* background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%233498db' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); */
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1.2em;
+            padding-right: 3rem;
+        }
+
+        .form-group input:focus{
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+           
+            width: 97%;
+        }
+        .form-group select:focus{
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+           
+            width: 100%;
+        }
+
+        .form-group input[readonly] {
+            background-color: var(--light-gray);
+            border-color: #dde0e3;
+            cursor: not-allowed;
+            width: 960px;
+        }
+
+        .status-group {
+            display: grid;
+            /* grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); */
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-open { background-color: var(--success-color); }
+        .status-closed { background-color: var(--danger-color); }
+        .status-hold { background-color: var(--warning-color); }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 1.2rem;
+            background: linear-gradient(135deg, var(--primary-color), #2980b9);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 2.5rem;
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, #2980b9, var(--primary-color));
+            
+            box-shadow: 0 4px 12px rgba(41, 128, 185, 0.3);
+        }
+
+        
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .container {
+                padding: 1.5rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+                margin-bottom: 2rem;
+            }
+
+            .form-group select,
+            .form-group input[type="text"] {
+                padding: 1rem;
+            }
+
+            .status-group {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .btn {
+                padding: 1rem;
+                font-size: 1.1rem;
+            }
+        }
+
+       
+    </style>
+</head>
+<body>
+<style>
+    /* Additional body styles for better visual hierarchy */
+    body {
+        background: linear-gradient(135deg, #f5f7fa, #e4e7eb);
+        min-height: 100vh;
+        padding: 20px;
+    }
+</style>
+
+<div class="container">
+    <h1>Assign Job to Recruiter</h1>
+    <form method="POST" action="{{ url_for('assign_job') }}">
+        <!-- HR Selection -->
+        <div class="form-group">
+            <label for="hrSelect">HR:</label>
+            <select name="hr_name" id="hrSelect" required onchange="updateHRDetails()">
+                <option value="">Select HR</option>
+                {% for hr in hrs %}
+                <option value="{{ hr.hr_name }}" 
+                        data-email="{{ hr.hr_email }}"
+                        data-user-id="{{ hr.user_id }}">{{ hr.hr_name }}</option>
+                {% endfor %}
+            </select>
+            <input type="text" id="hrEmail" name="hr_email" readonly placeholder="HR Email">
+        </div>
+
+        <!-- Recruiter Selection -->
+        <div class="form-group">
+            <label for="recruiterSelect">Recruiter:</label>
+            <select name="recruiter_name" id="recruiterSelect" required onchange="updateRecruiterDetails()">
+                <option value="">Select Recruiter</option>
+                {% for recruiter in recruiters %}
+                <option value="{{ recruiter.recruiter_name }}" 
+                        data-hr-name="{{ recruiter.hr_name }}"
+                        data-recruiterid="{{ recruiter.recruiter_id }}"
+                        data-email="{{ recruiter.recruiter_email }}"
+                        class="recruiter-option">
+                    {{ recruiter.recruiter_name }}
+                </option>
+                {% endfor %}
+            </select>
+            <input type="text" id="recruiterEmail" name="recruiter_email" readonly placeholder="Recruiter Email">
+            <input type="hidden" name="recruiter_id" id="recruiterId">
+        </div>
+
+        <!-- Department Selection -->
+        <!-- Department Selection -->
+        <div class="form-group">
+            <label for="deptSelect">Department:</label>
+            <select name="dept_name" id="deptSelect" required onchange="filterHODs()">
+                <option value="">Select Department</option>
+                {% for dept in departments %}
+                <option value="{{ dept.dept_name }}" 
+                        data-hod-id="{{ dept.hod_id }}"
+                        data-hod-name="{{ dept.hod_name }}">
+                    {{ dept.dept_name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- HOD Selection -->
+        <div class="form-group">
+            <label for="hodSelect">HOD:</label>
+            <select name="hod_name" id="hodSelect" required>
+                <option value="">Select HOD</option>
+                {% for dept in departments %}
+                <option value="{{ dept.hod_name }}" 
+                        data-dept-name="{{ dept.dept_name }}"
+                        data-hod-id="{{ dept.hod_id }}"
+                        class="hod-option"
+                        style="display: none;">
+                    {{ dept.hod_name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+
+        <!-- Job Position -->
+        <div class="form-group">
+            <label for="jobPosition">Job Position:</label>
+            <div style="display: flex; gap: 10px;">
+                <select name="position_name" id="positionSelect" style="flex: 1;" onchange="updateJobPosition(this.value, this.options[this.selectedIndex].dataset.jobId)">
+                    <option value="">Select Job Position</option>
+                    {% for job in jobs %}
+                        <option value="{{ job.position }}" data-job-id="{{ job.job_id }}">{{ job.position }}</option>
+                    {% endfor %}
+                </select>
+                <input type="text"
+                       name="job_position" 
+                       id="jobPosition"
+                       placeholder="Enter Job Position or select from list"
+                       required
+                       style="flex: 1;"
+                       list="jobPositionsList">
+                <input type="hidden" name="job_id" id="jobId">
+                <datalist id="jobPositionsList">
+                    {% for job in jobs %}
+                        <option value="{{ job.position }}" data-job-id="{{ job.job_id }}">
+                    {% endfor %}
+                </datalist>
+            </div>
+        </div>
+
+        <!-- Skills -->
+        <div class="form-group">
+            <label for="skills">Skills:</label>
+            <input type="text" name="skills" id="skills" placeholder="Enter required skills" required>
+        </div>
+        
+        <!-- Status Fields -->
+        <div class="form-group">
+            <label for="status">Status:</label>
+            <select name="status" required>
+                <option value="Open">Open</option>
+                <option value="Closed">Closed</option>
+                <option value="On Hold">On Hold</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="assignedStatus">Assignment Status:</label>
+            <select name="assigned_status" required>
+                <option value="Assigned">Assigned</option>
+                <option value="Not Assigned">Not Assigned</option>
+            </select>
+        </div>
+
+        <input type="hidden" name="redirect_to" value="recruiter_dashboard">
+        <button type="submit" class="btn">Assign Job</button>
+    </form>
+</div>
+
+<script>
+    function updateHRDetails() {
+        const hrSelect = document.getElementById('hrSelect');
+        const selectedOption = hrSelect.options[hrSelect.selectedIndex];
+        document.getElementById('hrEmail').value = selectedOption.dataset.email || '';
+        filterRecruiters();
+    }
+
+    function filterRecruiters() {
+        const hrSelect = document.getElementById('hrSelect');
+        const selectedHRName = hrSelect.value;
+        const recruiterSelect = document.getElementById('recruiterSelect');
+        const recruiterOptions = document.querySelectorAll('.recruiter-option');
+
+        // First hide all options
+        recruiterOptions.forEach(option => {
+            option.style.display = 'none';
+        });
+
+        // Show only matching options
+        recruiterOptions.forEach(option => {
+            if (option.dataset.hrName === selectedHRName) {
+                option.style.display = '';
+            }
+        });
+
+        // Reset recruiter selection
+        recruiterSelect.value = '';
+        document.getElementById('recruiterEmail').value = '';
+    }
+
+    function updateRecruiterDetails() {
+        const recruiterSelect = document.getElementById('recruiterSelect');
+        const selectedOption = recruiterSelect.options[recruiterSelect.selectedIndex];
+        document.getElementById('recruiterEmail').value = selectedOption.dataset.email || '';
+        document.getElementById('recruiterId').value = selectedOption.dataset.recruiterid || '';
+    }
+
+    function filterHODs() {
+        const deptSelect = document.getElementById('deptSelect');
+        const selectedDeptName = deptSelect.value;
+        const hodSelect = document.getElementById('hodSelect');
+        const hodOptions = document.querySelectorAll('.hod-option');
+
+        // First hide all options
+        hodOptions.forEach(option => {
+            option.style.display = 'none';
+        });
+
+        // Show only matching options
+        hodOptions.forEach(option => {
+            if (option.dataset.deptName === selectedDeptName) {
+                option.style.display = '';
+            }
+        });
+
+        // Reset HOD selection
+        hodSelect.value = '';
+    }
+
+    // Form submission handler
+    document.querySelector('form').addEventListener('submit', function(event) {
+        const formData = {
+            hr_name: document.querySelector('select[name="hr_name"]').value,
+            hr_email: document.querySelector('input[name="hr_email"]').value,
+            recruiter_name: document.querySelector('select[name="recruiter_name"]').value,
+            recruiter_id: document.getElementById('recruiterId').value,
+            recruiter_email: document.querySelector('input[name="recruiter_email"]').value,
+            dept_name: document.querySelector('select[name="dept_name"]').value,
+            hod_id: document.querySelector('select[name="hod_id"]').value,
+            position_name: document.querySelector('input[name="position_name"]').value,
+            hod_name: document.querySelector('select[name="hod_name"]').value,
+            job_position: document.querySelector('input[name="job_position"]').value,
+            skills: document.querySelector('input[name="skills"]').value,
+            status: document.querySelector('select[name="status"]').value,
+            assigned_status: document.querySelector('select[name="assigned_status"]').value
+        };
+        
+        localStorage.setItem('formData', JSON.stringify(formData));
+    });
+
+    // Job position management functions
+    function showNewJobForm() {
+        document.getElementById('newJobForm').style.display = 'block';
+    }
+
+    function hideNewJobForm() {
+        document.getElementById('newJobForm').style.display = 'none';
+        document.getElementById('newJobPosition').value = '';
+    }
+
+    function addNewJob() {
+        const newJobInput = document.getElementById('newJobPosition');
+        const jobSelect = document.getElementById('jobSelect');
+        const newJobValue = newJobInput.value.trim();
+
+        if (!newJobValue) {
+            alert('Please enter a job position');
+            return;
+        }
+
+        const existingOptions = Array.from(jobSelect.options);
+        if (existingOptions.some(option => option.value.toLowerCase() === newJobValue.toLowerCase())) {
+            alert('This position already exists!');
+            return;
+        }
+
+        fetch('/assign_job', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                position: newJobValue,
+                skills: 'To be updated',
+                experience: 0,
+                isNewPosition: true
+            })
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                const option = document.createElement('option');
+                option.value = newJobValue;
+                option.text = newJobValue;
+                jobSelect.add(option);
+                sortSelectOptions(jobSelect);
+                jobSelect.value = newJobValue;
+                hideNewJobForm();
+                alert('New job position added successfully!');
+            } else {
+                throw new Error(data.message || 'Failed to add position');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error adding new job position: ' + error.message);
+        });
+    }
+
+    function sortSelectOptions(selectElement) {
+        const options = Array.from(selectElement.options);
+        options.sort((a, b) => {
+            if (a.value === '') return -1;
+            if (b.value === '') return 1;
+            return a.text.localeCompare(b.text);
+        });
+        selectElement.innerHTML = '';
+        options.forEach(option => selectElement.add(option));
+    }
+
+    // Initialize the form when the page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        updateHRDetails();
+        filterHODs();
+    });
+</script>
+
+
+<script>
+    function showNewJobForm() {
+        document.getElementById('newJobForm').style.display = 'block';
+    }
+
+    function hideNewJobForm() {
+        document.getElementById('newJobForm').style.display = 'none';
+        document.getElementById('newJobPosition').value = '';
+    }
+
+    function addNewJob() {
+        const newJobInput = document.getElementById('newJobPosition');
+        const jobSelect = document.getElementById('jobSelect');
+        const newJobValue = newJobInput.value.trim();
+
+        if (!newJobValue) {
+            alert('Please enter a job position');
+            return;
+        }
+
+        // Check if position already exists
+        const existingOptions = Array.from(jobSelect.options);
+        if (existingOptions.some(option => option.value.toLowerCase() === newJobValue.toLowerCase())) {
+            alert('This position already exists!');
+            return;
+        }
+
+        // Send the new job position to the server
+        fetch('/assign_job', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                position: newJobValue,
+                skills: 'To be updated',
+                experience: 0,
+                isNewPosition: true  // Flag to identify this as a new position request
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Create new option
+                const option = document.createElement('option');
+                option.value = newJobValue;
+                option.text = newJobValue;
+                
+                // Add to select and sort options
+                jobSelect.add(option);
+                sortSelectOptions(jobSelect);
+                
+                // Select the new option
+                jobSelect.value = newJobValue;
+                
+                // Hide the form and clear input
+                hideNewJobForm();
+                
+                alert('New job position added successfully!');
+            } else {
+                throw new Error(data.message || 'Failed to add position');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error adding new job position: ' + error.message);
+        });
+    }
+
+    // Helper function to sort select options
+    function sortSelectOptions(selectElement) {
+        const options = Array.from(selectElement.options);
+        options.sort((a, b) => {
+            if (a.value === '') return -1;  // Keep empty option at top
+            if (b.value === '') return 1;
+            return a.text.localeCompare(b.text);
+        });
+        
+        selectElement.innerHTML = '';
+        options.forEach(option => selectElement.add(option));
+    }
+
+    
+        function updateJobPosition(value) {
+            if (value) {
+                document.getElementById('jobPosition').value = value;
+            }
+        }
+
+        function updatePositionSelect(value) {
+            const select = document.getElementById('positionSelect');
+            select.value = '';
+        }
+
+        // Update the form submission handler
+        document.querySelector('form').addEventListener('submit', function(event) {
+            const formData = {
+                // ... existing fields ...
+                position_name: document.getElementById('jobPosition').value, // Use the text input value
+                // ... remaining fields ...
+            };
+            
+            localStorage.setItem('formData', JSON.stringify(formData));
+        });
+        </script>
+
+    
+</script>
+</body>
+</html>
+
+

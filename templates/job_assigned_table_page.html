@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    
+    <style>
+        /* Add matching styles from assign_job.html */
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 2rem;
+            color: #2c3e50;
+        }
+        .container {
+            max-width: 1600px; /* Increased width */
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1); /* Enhanced shadow */
+            overflow-x: auto; /* Add horizontal scrolling if needed */
+        }
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 1.5rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 1.2rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+            white-space: nowrap; /* Prevent text wrapping in cells */
+        }
+        th {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        .back-button {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .back-button:hover {
+            background: linear-gradient(135deg, #2980b9, #3498db);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(41, 128, 185, 0.3);
+        }
+        
+        /* Enhanced styles for filters */
+        .filters {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .filter-group {
+            flex: 1;
+            min-width: 250px; /* Increased width */
+        }
+        
+        .filter-group select {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+        
+        .filter-group select:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+            outline: none;
+        }
+        
+        .filter-group label {
+            display: block;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 1rem;
+        }
+        
+        .filter-buttons {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+            min-width: 250px;
+            flex: 1;
+        }
+        
+        .clear-filters {
+            display: inline-block;
+            padding: 1rem 1.5rem;
+            background: #e74c3c;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-align: center;
+            flex: 1;
+        }
+        
+        .clear-filters:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3);
+        }
+        
+        .apply-filters {
+            padding: 1rem 1.5rem;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+        
+        .apply-filters:hover {
+            background: linear-gradient(135deg, #2980b9, #3498db);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(41, 128, 185, 0.3);
+        }
+        
+        .h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #2c3e50;
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 1.5rem;
+        }
+        
+        .page-title {
+            font-size: 2rem;
+            color: #2c3e50;
+            margin: 0;
+            text-align: center;
+            flex-grow: 1;
+        }
+        
+        .edit-button {
+            display: inline-block;
+            padding: 0.6rem 1rem;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            text-align: center;
+            min-width: 70px;
+        }
+
+        .edit-button:hover {
+            background: linear-gradient(135deg, #2980b9, #3498db);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(41, 128, 185, 0.3);
+        }
+
+        .delete-button {
+            display: inline-block;
+            padding: 0.6rem 1rem;
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: 5px;
+        }
+
+        .delete-button:hover {
+            background: linear-gradient(135deg, #c0392b, #e74c3c);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3);
+        }
+
+        
+        
+        /* Make the Actions column narrower and center content */
+        .th:last-child, td:last-child {
+            width: 100px;
+            text-align: center;
+        }
+        
+        /* Zebra striping for table rows */
+        tbody tr:nth-child(even) {
+            background-color: #f5f7fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Improved header layout -->
+        <div class="header-container">
+            <a href="{{ url_for('hr_dashboard') }}" class="back-button">Back to Dashboard</a>
+            <h1 class="page-title">Recruiter Assignments</h1>
+            <div style="width: 150px;"></div> <!-- Spacer for balance -->
+        </div>
+        
+        <!-- Enhanced filters section -->
+        <!-- Enhanced filters section -->
+        <form method="GET" action="{{ url_for('job_assigned_table_page') }}" class="filters">
+            <div class="filter-group">
+                <label for="hr_name">Filter by HR:</label>
+                <select name="hr_name" id="hr_name">
+                    <option value="">All HRs</option>
+                    {% for hr in hrs %}
+                    <option value="{{ hr }}" {% if current_filters.hr_name == hr %}selected{% endif %}>{{ hr }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="recruiter_name">Filter by Recruiter:</label>
+                <select name="recruiter_name" id="recruiter_name">
+                    <option value="">All Recruiters</option>
+                    {% for recruiter in recruiters %}
+                    <option value="{{ recruiter }}" {% if current_filters.recruiter_name == recruiter %}selected{% endif %}>{{ recruiter }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label for="dept_name">Filter by Department:</label>
+                <select name="dept_name" id="dept_name">
+                    <option value="">All Departments</option>
+                    {% for dept in departments %}
+                    <option value="{{ dept }}" {% if current_filters.dept_name == dept %}selected{% endif %}>{{ dept }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="filter-buttons">
+                <button type="submit" class="apply-filters">Apply Filters</button>
+                {% if current_filters.hr_name or current_filters.recruiter_name or current_filters.dept_name %}
+                <a href="{{ url_for('job_assigned_table_page') }}" class="clear-filters">Clear Filters</a>
+                {% endif %}
+            </div>
+        </form>
+
+        <table>
+            <thead>
+                <tr>
+                    
+                    <th>HR Name</th>
+                    <th>Recruiter Name</th>
+                    <th>Recruiter_Id</th>
+                    <th>Recruiter Email</th>
+                    <th>Department</th>
+                    <th>HOD Name</th>
+                    <th>Hod ID</th>
+                    <th>Job Position</th>
+                    <th>Job ID</th>         
+                    <th>Status</th>
+                    <th>Assignment Status</th>
+                    <th>Assigned Date</th>
+                    
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for assignment in form_data %}
+                
+                    
+                    <td>{{ assignment.hr_name }}</td>
+                    <td>{{ assignment.recruiter_name }}</td>
+                    <td>{{ assignment.recruiter_id }}</td>
+                    <td>{{ assignment.recruiter_email }}</td>
+                    <td>{{ assignment.dept_name }}</td>
+                    <td>{{ assignment.hod_name }}</td>
+                    <td>{{ assignment.hod_id }}</td>
+                    <td>{{ assignment.job_position }}</td>
+                    <td>{{assignment.job_id}}</td>
+                    <td>{{ assignment.status }}</td>
+                    <td>{{ assignment.assigned_status }}</td>
+                    <td>{{ assignment.assigned_date }}</td>
+                    
+                    
+                    
+                    <td>
+                        <button class="edit-button" onclick="openEditForm('{{ assignment.job_id }}','{{ assignment.recruiter_id }}', '{{ assignment.recruiter_name }}', '{{ assignment.dept_name }}', '{{ assignment.job_position }}', '{{ assignment.status }}', '{{ assignment.assigned_status }}')">Edit</button>
+                
+                    <button class="delete-button" onclick="deleteAssignment('{{ assignment.job_id }}')">Delete</button>
+                    </div>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% if not form_data %}
+                <tr>
+                    <td colspan="13" style="text-align: center; padding: 2rem;">No assignments found</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+                   
+            </style>
+
+            <div id="editModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" onclick="closeEditModal()">&times;</span>
+                    <h2>Edit Assignment</h2>
+                    <form id="editForm" method="POST" action="/edit_job_assignment">
+                        <input type="hidden" id="edit_job_id" name="job_id">
+                        <input type="hidden" id="edit_recruiter_id" name="recruiter_id">
+                        
+                        <div class="form-group">
+                            <label for="edit_recruiter_name">Recruiter Name:</label>
+                            <input type="text" id="edit_recruiter_name" name="recruiter_name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="edit_dept_name">Department:</label>
+                            <select id="edit_dept_name" name="dept_name" required>
+                                {% for dept in departments %}
+                                <option value="{{ dept }}">{{ dept }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="edit_job_position">Job Position:</label>
+                            <select id="edit_job_position" name="job_position" required>
+                                {% for job in jobs %}
+                                <option value="{{ job }}">{{ job }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="edit_status">Status:</label>
+                            <select id="edit_status" name="status" required>
+                                <option value="Open">Open</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Closed">Closed</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="edit_assigned_status">Assignment Status:</label>
+                            <select id="edit_assigned_status" name="assigned_status" required>
+                                <option value="Assigned">Assigned</option>
+                                <option value="In Progress">In Progress</option>
+                                <option value="Completed">Completed</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-buttons">
+                            <button type="button" class="cancel-button" onclick="closeEditModal()">Cancel</button>
+                            <button type="submit" class="save-button">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            </div>    
+            
+            <style>
+                .modal {
+                        display: none;
+                        position: fixed;
+                                z-index: 1000;
+                                left: 0;
+                                top: 0;
+                                width: 100%;
+                                height: 100%;
+                                overflow: auto;
+                                background-color: rgba(0, 0, 0, 0.5);
+                            }
+                            
+                           
+                                .modal-content {
+                                    background-color: #fff;
+                                    margin: 10% auto;
+                                    padding: 2rem;
+                                    border-radius: 10px;
+                                    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+                                    width: 60%;
+                                    max-width: 600px;
+                                    position: relative;
+                                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                                }
+                            
+                                .modal-content h2 {
+                                    margin-top: 0;
+                                    color: #2c3e50;
+                                    font-size: 1.5rem;
+                                    text-align: center;
+                                }
+                            
+                                .form-group {
+                                    margin-bottom: 1.5rem;
+                                }
+                            
+                                .form-group label {
+                                    display: block;
+                                    margin-bottom: 0.5rem;
+                                    font-weight: 600;
+                                    color: #2c3e50;
+                                }
+                            
+                                .form-group input[type="text"],
+                                .form-group select {
+                                    width: 100%;
+                                    padding: 0.8rem;
+                                    border: 1px solid #e0e0e0;
+                                    border-radius: 5px;
+                                    background-color: #f9f9f9;
+                                    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+                                    transition: border-color 0.3s ease;
+                                }
+                            
+                                .form-group input[type="text"]:focus,
+                                .form-group select:focus {
+                                    border-color: #3498db;
+                                    outline: none;
+                                }
+                            
+                                .form-buttons {
+                                    display: flex;
+                                    justify-content: flex-end;
+                                    gap: 1rem;
+                                    margin-top: 2rem;
+                                }
+                            
+                                .cancel-button,
+                                .save-button {
+                                    padding: 0.8rem 1.5rem;
+                                    border: none;
+                                    border-radius: 5px;
+                                    font-weight: 600;
+                                    cursor: pointer;
+                                    transition: background-color 0.3s ease, transform 0.3s ease;
+                                }
+                            
+                                .cancel-button {
+                                    background: #95a5a6;
+                                    color: white;
+                                }
+                            
+                                .cancel-button:hover {
+                                    background: #7f8c8d;
+                                    transform: translateY(-2px);
+                                }
+                            
+                                .save-button {
+                                    background: linear-gradient(135deg, #3498db, #2980b9);
+                                    color: white;
+                                }
+                            
+                                .save-button:hover {
+                                    background: linear-gradient(135deg, #2980b9, #3498db);
+                                    transform: translateY(-2px);
+                                }
+                            
+                                .close {
+                                    position: absolute;
+                                    right: 1.5rem;
+                                    top: 1rem;
+                                    font-size: 1.5rem;
+                                    font-weight: bold;
+                                    cursor: pointer;
+                                    color: #2c3e50;
+                                }
+                            
+                                .close:hover {
+                                    color: #e74c3c;
+                                }
+                        
+                            
+                            .form-buttons {
+                                display: flex;
+                                justify-content: flex-end;
+                                gap: 1rem;
+                                margin-top: 2rem;
+                            }
+                            
+                            .cancel-button {
+                                padding: 0.8rem 1.5rem;
+                                background: #95a5a6;
+                                color: white;
+                                border: none;
+                                border-radius: 5px;
+                                cursor: pointer;
+                                font-weight: 600;
+                            }
+                            
+                            .save-button {
+                                padding: 0.8rem 1.5rem;
+                                background: linear-gradient(135deg, #3498db, #2980b9);
+                                color: white;
+                                border: none;
+                                border-radius: 5px;
+                                cursor: pointer;
+                                font-weight: 600;
+                            }
+                            
+                            .form-group {
+                                margin-bottom: 1.5rem;
+                            }
+                        </style>
+        
+        
+
+        <script>
+            function openEditForm(jobID, recruiterID, recruiterName, deptName, jobPosition, status, assignedStatus) {
+                if (jobID) {
+                    document.getElementById('edit_job_id').value = jobID;
+                }
+                document.getElementById('edit_recruiter_id').value = recruiterID;
+                document.getElementById('edit_recruiter_name').textContent = recruiterName;
+        
+                // Use a helper to set dropdown values
+                setDropdownValue('edit_dept_name', deptName);
+                setDropdownValue('edit_job_position', jobPosition);
+                setDropdownValue('edit_status', status);
+                setDropdownValue('edit_assigned_status', assignedStatus);
+        
+                // Show the modal
+                document.getElementById('editModal').style.display = 'block';
+            }
+        
+            function setDropdownValue(elementId, value) {
+                const select = document.getElementById(elementId);
+                for (let i = 0; i < select.options.length; i++) {
+                    if (select.options[i].value === value) {
+                        select.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+        
+            function closeEditModal() {
+                document.getElementById('editModal').style.display = 'none';
+            }
+        
+            // Form submission handler
+            document.getElementById('editForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+        
+                const recruiterID = document.getElementById('edit_recruiter_id').value;
+                const formData = new FormData(this);
+        
+                fetch(`/edit_job_assignment/${recruiterID}`, {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        } else {
+                            throw new Error(`Server responded with status: ${response.status}`);
+                        }
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            alert('Assignment updated successfully!');
+                            closeEditModal();
+                            window.location.reload();
+                        } else {
+                            alert('Error: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while updating the assignment: ' + error.message);
+                        if (error.message.includes('JSON')) {
+                            setTimeout(() => {
+                                window.location.href = '/';
+                            }, 2000);
+                        }
+                    });
+            });
+        
+            // Dynamic option handling for job position input
+            document.getElementById('edit_job_position').addEventListener('input', function () {
+                const value = this.value.trim();
+                if (!value) return;
+        
+                let exists = false;
+                for (let i = 0; i < this.options.length; i++) {
+                    if (this.options[i].value === value) {
+                        exists = true;
+                        break;
+                    }
+                }
+        
+                if (!exists) {
+                    const newOption = document.createElement('option');
+                    newOption.value = value;
+                    newOption.text = `${value} (New)`;
+                    this.add(newOption);
+                    this.value = value;
+                }
+            });
+        </script>
+        
+
+                <script>
+                function deleteAssignment(jobId) {
+                    if (confirm('Are you sure you want to delete this assignment?')) {
+                        fetch(`/delete_assignment/${jobId}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                window.location.reload();
+                            } else {
+                                alert('Error: ' + data.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('An error occurred while deleting the assignment');
+                        });
+                    }
+                }
+                document.getElementById('edit_job_position').addEventListener('input', function() {
+                    
+                    const value = this.value;
+                    let exists = false;
+                    
+                    // Check if the value exists in the options
+                    for (let i = 0; i < this.options.length; i++) {
+                        if (this.options[i].value === value) {
+                            exists = true;
+                            break;
+                        }
+                    }
+                    
+                    // If it doesn't exist, create a new option
+                    if (!exists && value.trim() !== '') {
+                        const newOption = document.createElement('option');
+                        newOption.value = value;
+                        newOption.text = value + ' (New)';
+                        this.add(newOption);
+                        this.value = value;
+                    }
+                });
+                </script>
+
+            <!-- Add JavaScript for handling modals and AJAX -->
+           
+        
+</body>
+</html>
+

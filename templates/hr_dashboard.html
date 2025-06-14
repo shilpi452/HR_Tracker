@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/candidate_table.css') }}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+        }
+
+        .dashboard {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #2c3e50;
+            color: white;
+            padding: 1rem;
+        }
+
+        .sidebar-header {
+            padding: 1rem;
+            border-bottom: 1px solid #34495e;
+            margin-bottom: 1rem;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.2rem;
+            color: #ecf0f1;
+        }
+
+        .nav-menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            padding: 20px 0;
+            border-style: shadow;
+            width:100%
+        }
+
+        .nav-item {
+            margin: 0;
+            padding: 0 20px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .nav-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: #bdc3c7;
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.05);
+            gap: 10px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            
+        }
+
+        .nav-link i {
+            font-size: 1.4rem;
+            margin-bottom: 6px;
+        }
+
+        .nav-link::after {
+            content: attr(data-description);
+            font-size: 0.8rem;
+            opacity: 0.7;
+            font-weight: 400;
+            transition: opacity 0.3s ease;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-link:hover::after {
+            opacity: 1;
+            display: block;
+            padding: 0.75rem 1rem;
+            color: #bdc3c7;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+            
+        
+
+        .nav-link:hover {
+            background-color: #34495e;
+            color: white;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 2rem;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .welcome-text {
+            font-size: 1.5rem;
+            color: #2c3e50;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logout-btn {
+            padding: 0.5rem 1rem;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .dashboard-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            font-size: 1.1rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+
+        .card-content {
+            color: #34495e;
+        }
+
+        .alert {
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>HR Dashboard</h2>
+            </div>
+            <nav>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="{{ url_for('hr_dashboard') }}" class="nav-link">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('browse_jobs') }}" class="nav-link">Job Openings</a>
+                    </li>
+                   
+                    <li class="nav-item">
+                        <a href="{{ url_for('assign_job') }}" class="nav-link">Assign Job Opening</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ url_for('job_assigned_table_page') }}" class="nav-link">Recruiters</a>
+                    </li>
+                   
+                                        
+                    
+                    <li class="nav-item">
+                        <a href="{{ url_for ('candidate_joined')}}" class="nav-link">Candidate Joined</a>
+                    </li>
+                    
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="header">
+                <h1 class="welcome-text">Welcome, {{ session['username'] }}!</h1>
+                <div class="user-info">
+                    
+                    <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+                </div>
+            </div>
+
+            <!-- {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %} -->
+
+            <div class="dashboard-cards">
+                <div class="card">
+                    <h3 class="card-header">Active Job Openings</h3>
+                    <div class="card-content">
+                        <p>Total active positions: {% set total = namespace
+                            (value=0) %}{% for recruiter in recruiters %}
+                            {% set total.value = total.value + recruiter.total_jobs %}{% endfor %}{{ total.value }}</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-header">Pending Applications</h3>
+                    <div class="card-content">
+                        <p>Applications to review: 25</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-header">Upcoming Interviews</h3>
+                    <div class="card-content">
+                        <p>Scheduled interviews: 8</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-header">Recent Hires</h3>
+                    <div class="card-content">
+                        <p>New hires this month: 5</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="recruiters-section">
+                <h2 class="section-title">Your Recruiters</h2>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Recruiter ID</th>
+                                <th>Recruiter Name</th>
+                                <th>Email</th>
+                                <th>Number of Jobs Assigned</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for recruiter in recruiters %}
+                            <tr>
+                                <td>{{ recruiter.recruiter_id }}</td>
+                                <td>{{ recruiter.recruiter_name }}</td>
+                                <td>{{ recruiter.recruiter_email }}</td>
+                                <td>{{ recruiter.total_jobs }}</td>
+                                <td>
+                                    <a href="{{ url_for('view_recruiter_dashboard', recruiter_name=recruiter.recruiter_name) }}" 
+                                       class="action-btn view">View Dashboard</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        <style>
+                    body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background-color: #f4f6f9;
+                margin: 0;
+                padding: 0;
+            }
+
+            .recruiters-section {
+                background-color: #ffffff;
+                margin: 40px auto;
+                padding: 35px 30px;
+                border-radius: 20px;
+                max-width: 1100px;
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
+            }
+
+            .section-title {
+                text-align: center;
+                font-size: 30px;
+                font-weight: 700;
+                margin-bottom: 30px;
+                color: #2c3e50;
+            }
+
+            .table-container {
+                overflow-x: auto;
+            }
+
+            .data-table {
+                width: 100%;
+                border-collapse: collapse;
+                background-color: #fff;
+                border-radius: 12px;
+                overflow: hidden;
+            }
+
+            .data-table thead {
+                background-color: #34495e;
+                color: white;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 16px 20px;
+                text-align: center;
+            }
+
+            .data-table th {
+                font-size: 15px;
+                font-weight: 600;
+                letter-spacing: 0.5px;
+            }
+
+            .data-table td {
+                font-size: 14px;
+                color: #333;
+                vertical-align: middle;
+            }
+
+            .data-table tbody tr {
+                border-bottom: 1px solid #ecf0f1;
+                transition: background 0.25s ease;
+            }
+
+            .data-table tbody tr:hover {
+                background-color: #f1f9ff;
+            }
+
+            .data-table tbody tr:nth-child(even) {
+                background-color: #fafafa;
+            }
+
+            /* Action Button Styling */
+            .action-btn {
+                padding: 8px 14px;
+                font-size: 13px;
+                font-weight: 500;
+                border-radius: 6px;
+                text-decoration: none;
+                color: white;
+                transition: background-color 0.2s ease;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            }
+
+            .action-btn.view {
+                background-color: #1abc9c;
+            }
+
+            .action-btn.view:hover {
+                background-color: #16a085;
+            }
+
+            /* Responsive Adjustments */
+            @media (max-width: 768px) {
+                .section-title {
+                    font-size: 24px;
+                }
+
+                .data-table th,
+                .data-table td {
+                    font-size: 13px;
+                    padding: 12px 14px;
+                }
+
+                .action-btn {
+                    padding: 6px 10px;
+                    font-size: 12px;
+                }
+            }
+            </style>
+
+        
+        <style>
+            /* Modal Styles */
+            .modal {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 1000;
+                justify-content: center;
+                align-items: center;
+            }
+            
+            .modal-content {
+                background-color: #fff;
+                padding: 20px;
+                border-radius: 8px;
+                width: 500px;
+                max-width: 90%;
+                position: relative;
+            }
+            
+            .close {
+                position: absolute;
+                top: 10px;
+                right: 15px;
+                font-size: 24px;
+                cursor: pointer;
+            }
+            
+            .form-group {
+                margin-bottom: 15px;
+            }
+            
+            .form-group label {
+                display: block;
+                margin-bottom: 5px;
+                font-weight: 500;
+            }
+            
+            .form-control {
+                width: 100%;
+                padding: 8px 12px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                font-size: 14px;
+            }
+            
+            .form-buttons {
+                display: flex;
+                justify-content: flex-end;
+                gap: 10px;
+                margin-top: 20px;
+            }
+            
+            .btn {
+                padding: 8px 16px;
+                border-radius: 4px;
+                cursor: pointer;
+                border: none;
+                font-weight: 500;
+            }
+            
+            .btn-primary {
+                background-color: #007bff;
+                color: white;
+            }
+            
+            .btn-secondary {
+                background-color: #6c757d;
+                color: white;
+            }
+            
+            .btn-danger {
+                background-color: #dc3545;
+                color: white;
+            }
+        </style>
+    </div>
+        
+</body>
+</html>
+<!-- Edit Assignment Modal -->
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeEditModal()">&times;</span>
+        <h2>Edit Assignment</h2>
+        <form id="edit-assignment-form">
+            <input type="hidden" id="edit-assignment-id" name="assignment_id">
+            <div class="form-group">
+                <label for="edit-status">Status:</label>
+                <select id="edit-status" name="status" class="form-control">
+                    <option value="Open">Open</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Closed">Closed</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="edit-assigned-status">Assigned Status:</label>
+                <select id="edit-assigned-status" name="assigned_status" class="form-control">
+                    <option value="Assigned">Assigned</option>
+                    <option value="Unassigned">Unassigned</option>
+                </select>
+            </div>
+            <div class="form-buttons">
+                <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>
+<script>
+    // Function to open the edit modal
+    function openEditModal(assignmentId, currentStatus, currentAssignedStatus) {
+        document.getElementById('edit-assignment-id').value = assignmentId;
+        document.getElementById('edit-status').value = currentStatus;
+        document.getElementById('edit-assigned-status').value = currentAssignedStatus;
+        document.getElementById('editModal').style.display = 'flex';
+    }
+    
+    // Function to close the edit modal
+    function closeEditModal() {
+        document.getElementById('editModal').style.display = 'none';
+    }
+    
+    // Function to handle the form submission for updating assignment
+    document.getElementById('edit-assignment-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const assignmentId = document.getElementById('edit-assignment-id').value;
+        const status = document.getElementById('edit-status').value;
+        const assignedStatus = document.getElementById('edit-assigned-status').value;
+        
+        // Send AJAX request to update the assignment
+        fetch('/update_assignment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `assignment_id=${assignmentId}&status=${status}&assigned_status=${assignedStatus}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Close the modal and refresh the page to show updated data
+                closeEditModal();
+                location.reload();
+            } else {
+                // Display error message
+                alert(data.message || 'An error occurred while updating the assignment');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while updating the assignment');
+        });
+    });
+    
+    // Function to handle delete button click
+    function deleteAssignment(assignmentId) {
+        if (confirm('Are you sure you want to delete this assignment?')) {
+            // Send AJAX request to delete the assignment
+            fetch('/delete_assignment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `assignment_id=${assignmentId}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Refresh the page to show updated data
+                    location.reload();
+                } else {
+                    // Display error message
+                    alert(data.message || 'An error occurred while deleting the assignment');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while deleting the assignment');
+            });
+        }
+    }
+</script>
+
+
+

@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidate Activity Log</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .table-responsive {
+            max-height: 75vh;
+            overflow-y: auto;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(133, 144, 240, 0.1);
+        }
+        .title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #a1b9fa;
+            margin-bottom: 10px;
+        }
+        thead {
+            position: sticky;
+            top: 0;
+            background-color: #2c3e50;
+            color: white;
+            z-index: 1;
+        }
+        .table {
+            margin-bottom: 0;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        .table th {
+            padding: 15px;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #34495e;
+        }
+
+        h2 {
+            color: #a1b9fa;
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 2px solid #a1b9fa;
+            padding-bottom: 10px;
+        }
+        
+        .table td {
+            padding: 12px 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px; /* Limit cell width */
+        }
+        
+        .table th {
+            padding: 15px;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #34495e;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px; /* Limit header width */
+        }
+    
+        /* Add tooltip on hover */
+        .table td:hover, .table th:hover {
+            overflow: visible;
+            white-space: normal;
+            position: relative;
+            z-index: 2;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+    
+        .table-responsive {
+            max-height: 75vh;
+            overflow-y: auto;
+            overflow-x: auto; /* Enable horizontal scrolling */
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(133, 144, 240, 0.1);
+        }
+        .table tbody tr:hover {
+            
+            transition: background-color 0.2s ease-in-out;
+        }
+        .header-container {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        .btn-secondary {
+            background-color: #2c3e50;
+            border: none;
+            padding: 10px 20px;
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover {
+            background-color: #34495e;
+            transform: translateY(-2px);
+        }
+        .alert-info {
+            background-color: #e8f4f8;
+            border-color: #bee5eb;
+            color: #0c5460;
+            border-radius: 8px;
+            padding: 15px 20px;
+        }
+
+        .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        background-color: #fff;
+        padding: 25px;
+        border-radius: 8px;
+        width: 60%;
+        max-width: 700px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        max-height: 80vh;
+        overflow-y: auto;
+    }
+
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .close:hover {
+        color: #333;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    .form-buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+    }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2>Activity Log for: {{ candidate.candidate_name }} (ID: {{ candidate.candidate_id }})</h2>
+
+            {% if activities %}
+            {% for activity in activities %}
+            {% if activity.status == 'Candidate Joined' %}
+
+            <a class="btn btn-sm btn-success"
+            onclick="openPositionClosureForm(this)"
+            data-candidate-id="{{ activity.candidate_id }}"
+            data-candidate-name="{{ activity.candidate_name }}"
+            data-job-id="{{ activity.job_id }}"
+            data-hr-name="{{ activity.hr_name }}"
+            data-recruiter-name="{{ activity.recruiter_name }}"
+            data-recruiter-id="{{ activity.recruiter_id }}"
+            data-hod-name="{{ activity.hod_name }}"
+            data-position="{{ activity.position }}"
+            data-dept-name="{{ activity.dept_name }}"
+            data-hod-id="{{ activity.hod_id }}"
+            
+            data-location="{{ activity.current_location }}">
+            Close Position
+         </a>
+
+            {% endif %}
+
+            {% endfor %}
+            {% endif %}
+
+            <a href="{{ url_for('candidates') }}" class="btn btn-secondary">Back to Activity View</a>
+        </div>
+
+        {% if activities %}
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Candidate ID</th>
+                        <th>Candidate Name</th>
+                        <th>HR Name</th>
+                        <th>Dept Name</th>
+                        <th>Recruiter Name</th>
+                        <th>Recruiter ID</th>
+                        <th>Candidate Email</th>
+                        <th>Candidate Phone</th>
+                        <th>Candidate Address</th>
+                        <th>Candidate Education</th>
+                        <th>Skills</th>
+                        <th>Experience</th>
+                        <th>Current Company</th>
+                        <th>Current Designation</th>
+                        <th>Current Salary</th>
+                        <th>Expected Salary</th>
+                        <th>Current Location</th>
+                        <th>Current Industry</th>
+                        <th>Position</th>
+                        <th>Job ID</th>
+                        <th>HOD Name</th>
+                        <th>HOD ID</th>
+                        <th>Assigned Date</th>
+                        <th>Status</th>
+                        <th>Remarks</th>
+                        <th>Activity Date</th>
+                        <th>Activity Description</th>                        
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for activity in activities %}
+                    <tr>
+                        <td>{{ activity.candidate_id }}</td>  
+                        <td>{{ activity.candidate_name }}</td>
+                        <td>{{ activity.hr_name }}</td>
+                        <td>{{ activity.dept_name }}</td>
+                        <td>{{ activity.recruiter_name }}</td>
+                        <td>{{ activity.recruiter_id }}</td>
+                        <td>{{ activity.candidate_email }}</td>
+                        <td>{{ activity.candidate_phone }}</td>
+                        <td>{{ activity.candidate_address }}</td>
+                        <td>{{ activity.candidate_education }}</td>
+                        <td>{{ activity.candidate_skills }}</td>
+                        <td>{{ activity.candidate_experience }}</td>
+                        <td>{{ activity.current_company }}</td>
+                        <td>{{ activity.current_designation }}</td>
+                        <td>{{ activity.current_salary }}</td>
+                        <td>{{ activity.expected_salary }}</td>
+                        <td>{{ activity.current_location }}</td>
+                        <td>{{ activity.current_industry }}</td>
+                        <td>{{ activity.position }}</td>
+                        <td>{{ activity.job_id }}</td>
+                        <td>{{ activity.hod_name }}</td>
+                        <td>{{ activity.hod_id}}</td>
+                        <td>{{ activity.assigned_date.strftime('%Y-%m-%d %H:%M:%S') if activity.assigned_date else 'N/A' }}</td>
+                        <td>{{ activity.status }}</td>
+                        <td>{{ activity.remarks }}</td>
+                        <td>{{ activity.activity_date.strftime('%Y-%m-%d %H:%M:%S') if activity.activity_date else 'N/A' }}</td>
+                        <td>{{ activity.activity_description }}</td>
+                                                          
+                        
+
+
+                        </td>
+                        
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info" role="alert">
+            No activity log available for this candidate.
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Position Closure Form Modal -->
+    <div id="position-closure-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closePositionClosureModal(candidate_id)">&times;</span>
+            <h2>Position Closure Form</h2>
+            <form id="position-closure-form" method="POST" action="{{ url_for('submit_position_closure_form') }}">
+                <input type="hidden" id="candidate_id" name="candidate_id">
+                                  
+                <div class="form-group">
+                    <label for="candidate_name">Candidate Name:</label>
+                    <input type="text" id="candidate_name" name="candidate_name" class="form-control" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label for="job_id">Job ID:</label>
+                    <input type="text" id="Job_ID" name="Job_ID" class="form-control" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label for="hr_name">Hr_Name:</label>
+                    <input type="text" id="Hr_Name" name="Hr_Name" class="form-control" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label for="recruiter_name">Recruiter Name:</label>
+                    <input type="text" id="Recruiter_Name" name="Recruiter_Name" class="form-control" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label for="recruiter_id">Recruiter ID:</label>
+                    <input type="text" id="Recruiter_ID" name="Recruiter_ID" class="form-control" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label for="hod_name">Hod_Name:</label>
+                    <input type="text" id="Hod_Name" name="Hod_Name" class="form-control" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label for="hod_id">Hod_ID:</label>
+                    <input type="text" id="hod_id" name="Hod_ID" class="form-control" readonly>
+                </div>
+
+
+                <div class="form-group">
+                    <label for="position">Position:</label>
+                    <input type="text" id="position" name="position" class="form-control" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label for="location">Department:</label>
+                    <input type="text" id="dept_name" name="dept_name" class="form-control" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label for="salary_bracket">Salary Bracket:</label>
+                    <input type="text" id="salary_bracket" name="salary_bracket" class="form-control" required>
+                </div>
+                
+
+                <div class="form-group">
+                    <label for="Location">Location:</label>
+                    <input type="text" id="location" name="location" class="form-control" readonly>
+                </div>
+
+
+                <div class="form-group">
+                    <label for="joining_date">Joining Date:</label>
+                    <input type="datetime-local" id="joining_date" name="joining_date" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="offered_salary">Offered Salary:</label>
+                    <input type="number" id="offered_salary" name="offered_salary" class="form-control" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="joining_bonus">Joining Bonus (if any):</label>
+                    <input type="number" id="joining_bonus" name="joining_bonus" class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label for="remarks">Remarks:</label>
+                    <textarea id="remarks" name="remarks" class="form-control" rows="3"></textarea>
+                </div>
+                
+                <div class="form-buttons">
+                    <button type="button" class="btn btn-danger" onclick="closePositionClosureModal()">Cancel</button>
+                    <button type="submit" class="btn btn-success">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    
+        <script>
+        // Position Closure Form Functions
+            function openPositionClosureForm(button) {
+                const modal = document.getElementById('position-closure-modal');
+                modal.style.display = 'flex';
+
+                // Read from data attributes
+                document.getElementById('candidate_id').value = button.dataset.candidateId;
+                document.getElementById('candidate_name').value = button.dataset.candidateName;
+                document.getElementById('Job_ID').value = button.dataset.jobId;
+                document.getElementById('Hr_Name').value = button.dataset.hrName;
+                document.getElementById('Recruiter_Name').value = button.dataset.recruiterName;
+                document.getElementById('Recruiter_ID').value = button.dataset.recruiterId;
+                document.getElementById('Hod_Name').value = button.dataset.hodName;
+                document.getElementById('hod_id').value = button.dataset.hodId;
+                document.getElementById('position').value = button.dataset.position;
+                document.getElementById('dept_name').value = button.dataset.deptName;
+                // document.getElementById('salary_bracket').value = button.dataset.salaryBracket;
+                document.getElementById('location').value = button.dataset.location;
+            }
+
+            function closePositionClosureModal() {
+                // Hide the modal
+                const modal = document.getElementById('position-closure-modal');
+                modal.style.display = 'none';
+            }
+                
+        </script>
+
+
+        <!-- Bootstrap JS Bundle with Popper -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    </body>
+    </html>

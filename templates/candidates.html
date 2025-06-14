@@ -1,0 +1,1006 @@
+
+
+{% block content %}
+<div id="candidates-section" class="dashboard-section">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div style="flex: 1;"></div>
+        <h2 style="flex: 2; text-align: center; margin: 0;">CANDIDATES MANAGEMENT</h2>
+        <div style="flex: 1; text-align: right;">
+            <a href="{{ url_for('view_recruiter_dashboard') }}" class="back-button">
+                Back to Dashboard
+            </a>
+        </div>
+    </div>
+    
+    <style>
+        /* Candidate Table Styles */
+        #candidates-section {
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+        
+        #candidates-section h2 {
+            color: #2c3e50;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .filter-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .filter-container input,
+        .filter-container select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .filter-container button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .filter-container button:hover {
+            background-color: #2980b9;
+        }
+        
+        .table-responsive {
+            overflow-x: auto;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background-color: #fff;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .table thead th {
+            background-color: #3498db;
+            color: white;
+            font-weight: 700;
+            text-align: left;
+            padding: 12px 15px;
+            font-size: 14px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .table tbody tr {
+            transition: all 0.2s ease;
+        }
+        
+        .table tbody tr:nth-child(even) {
+            background-color: #f5f8fa;
+        }
+        
+        .table tbody tr:hover {
+            background-color: #ecf0f1;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .table td {
+            padding: 12px 15px;
+            font-size: 14px;
+            color: #34495e;
+            border-bottom: 1px solid #eee;
+            font-weight: 600;
+        }
+        
+        /* Additional style for specific columns if needed */
+        .table td:first-child {
+            font-weight: 700; /* Extra bold for ID column */
+        }
+        
+        /* Status column styling */
+        .table td:nth-child(22) {
+            font-weight: 700;
+        }
+        
+        .badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            display: inline-block;
+            text-align: center;
+            min-width: 80px;
+        }
+        
+        .badge-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .badge-info {
+            background-color: #f39c12;
+            color: white;
+        }
+        
+        .badge-success {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .badge-danger {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .btn {
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            margin-right: 5px;
+        }
+        
+        .btn-sm {
+            padding: 4px 8px;
+            font-size: 11px;
+        }
+        
+        .btn-info {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .btn-info:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-primary {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #27ae60;
+        }
+        
+        /* Pagination styles */
+        .pagination-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .pagination-btn {
+            padding: 6px 12px;
+            margin: 0 3px;
+            border: 1px solid #ddd;
+            background-color: white;
+            color: #3498db;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .pagination-btn.active {
+            background-color: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+        
+        .recruiter-info {
+            background-color: #e8f4f8;
+            padding: 10px 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .recruiter-info p {
+            margin: 0;
+            color: #34495e;
+        }
+        
+        .recruiter-info strong {
+            color: #2c3e50;
+        }
+        
+        .back-button {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .back-button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(41, 128, 185, 0.3);
+        }
+        
+        /* Position Closure Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            width: 500px;
+            max-width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal-content h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            text-align: center;
+        }
+        
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #7f8c8d;
+        }
+        
+        .close:hover {
+            color: #e74c3c;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #34495e;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .form-control:focus {
+            border-color: #3498db;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        
+        .form-control[readonly] {
+            background-color: #f8f9fa;
+            cursor: not-allowed;
+        }
+        
+        .form-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn-success {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+        
+        .btn-danger {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+
+            /* ... existing styles ... */
+
+/* Candidate Activity Modal Specific Styles */
+        #candidate-activity-modal .modal-content {
+            background-color: #ffffff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 800px;
+            max-width: 95%;
+            margin: 20px auto;
+        }
+
+        #candidate-activity-modal h2 {
+            color: #2c3e50;
+            font-weight: 600;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        #candidate-activity-modal .form-group {
+            margin-bottom: 15px;
+        }
+
+        #candidate-activity-modal .form-group label {
+            font-weight: 600;
+            color: #34495e;
+            font-size: 14px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        #candidate-activity-modal .form-control {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 8px 12px;
+            font-size: 14px;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+
+        #candidate-activity-modal .form-control:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+            outline: none;
+        }
+
+        #candidate-activity-modal .form-control[readonly] {
+            background-color: #f8f9fa;
+            cursor: not-allowed;
+        }
+
+        #candidate-activity-modal textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        #candidate-activity-modal .form-buttons {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+            text-align: right;
+        }
+
+        #candidate-activity-modal .btn {
+            padding: 8px 15px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 4px;
+            margin-left: 10px;
+        }
+
+        #candidate-activity-modal .close {
+            position: absolute;
+            right: 20px;
+            top: 15px;
+            font-size: 24px;
+            color: #666;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        #candidate-activity-modal .close:hover {
+            color: #e74c3c;
+        }
+
+/* ... existing styles ... */
+        }
+    </style>
+    
+    <div class="recruiter-info">
+        <p><strong>Welcome</strong> {{ session.username }}</p>
+    </div>
+    
+    <div class="filter-container">
+        <input type="text" id="searchInput" placeholder="Search candidates...">
+        <select id="statusFilter">
+            <option value="">Status: All</option>
+            <option value="Application Received">Application Received</option>
+            <option value="Under Initial Review">Under Initial Review</option>
+            <option value="Qualified for Next Stage">Qualified for Next Stage</option>
+            <option value="First Round Interview">First Round Interview</option>
+            <option value="Second-Round Interview">Second-Round Interview</option>
+            <option value="Final Round">Final Round</option>
+            <option value="Assessment in Progress">Assessment in Progress</option>
+            <option value="Background Verification">Background Verification</option>
+            <option value="Offer Extended">Offer Extended</option>
+            <option value="Offer Accepted">Offer Accepted</option>
+            <option value="Onboarding Initiated">Onboarding Initiated</option>
+            <option value="Candidate Rejected">Candidate Rejected</option>
+            <option value="Candidate Withdrew">Candidate Withdrew</option>
+            <option value="Call Not Answered">Call Not Answered</option>
+            <option value="Candidate Left">Candidate Left</option>
+            
+            
+        </select>
+        <select id="positionFilter">
+            <option value="">Position: All</option>
+            {% set positions = [] %}
+            {% for candidate in candidates %}
+                {% if candidate.position and candidate.position not in positions %}
+                    {% set positions = positions + [candidate.position] %}
+                    <option value="{{ candidate.position }}">{{ candidate.position }}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
+        <button id="filterBtn" onclick="filterTable()">Filter</button>
+        <button id="resetBtn" onclick="resetFilters()">Reset</button>
+        
+    </div>
+    
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="thead-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Candidate Name</th>
+                    <th>HR Name</th>
+                    <th>Dept name</th>
+                    <th>Recruiter Name</th>
+                    <th>Recruiter ID</th>
+                    <th>Candidate email</th>
+                    <th>Candidate Phone</th>
+                    <th>Candidate Address</th>
+                    <th>Candidate Education</th>
+                    <th>Skills</th>
+                    <th>Experience</th>
+                    <th>Current company</th>
+                    <th>Designation</th>
+                    <th>Current Salary</th>
+                    <th>Expected Salary</th>
+                    <th>Location</th>
+                    <th>Industry</th>
+                    <th>Position</th>
+                    <th>JobID</th>
+                    <th>Hod_name</th>
+                    <th>Hod_ID</th>
+                    <th>Assigned date</th>
+                    <th>Status</th>
+                    <th>Source</th>
+                    <th>Button</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for candidate in candidates %}
+                <tr>
+                    <td>{{ candidate.candidate_id }}</td>
+                    <td>{{ candidate.candidate_name }}</td>
+                    <td>{{ candidate.hr_name }}</td>
+                    <td>{{ candidate.dept_name }}</td>
+                    <td>{{ candidate.recruiter_name }}</td>
+                    <td>{{ candidate.recruiter_id }}</td>
+                    <td>{{ candidate.candidate_email }}</td>
+                    <td>{{ candidate.candidate_phone }}</td>
+                    <td>{{ candidate.candidate_address }}</td>
+                    <td>{{ candidate.candidate_education }}</td>
+                    <td>{{ candidate.candidate_skills }}</td>
+                    <td>{{ candidate.candidate_experience }}</td>
+                    <td>{{ candidate.current_company }}</td>
+                    <td>{{ candidate.current_designation }}</td>
+                    <td>{{ candidate.current_salary }}</td>
+                    <td>{{ candidate.expected_salary }}</td>
+                    <td>{{ candidate.current_location }}</td>
+                    <td>{{ candidate.current_industry }}</td>
+                    <td>{{ candidate.position }}</td>
+                    <td>{{ candidate.job_id }}</td>
+                    <td>{{ candidate.hod_name }}</td>
+                    <td>{{ candidate.hod_id }}</td>
+                    <td>{{ candidate.assigned_date }}</td>
+                    <td>{{ candidate.Source }}</td>
+                    <td>{{ candidate.button }}</td>
+                    <td>
+                        <button type="button" class="btn btn-sm btn-success" onclick="openCandidateActivityForm({{ candidate.candidate_id }})">Add Candidate Activity</button>
+                        <a href="{{ url_for('view_candidate_activity', candidate_id=candidate.candidate_id) }}" method="GET"
+                            class="btn btn-sm btn-info"
+                            title="View Candidate Activity">
+                            View Candidate Activity
+                        </a>
+                    </td>    
+                </tr>
+                    
+            
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+   
+    <div class="pagination-container" id="pagination">
+        <!-- Pagination will be added by JavaScript -->
+    </div>
+
+
+    <div id="candidate-activity-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeCandidateActivityModal()">×</span>
+            <h2>Candidate Activity Form</h2>
+            <form id="candidate-activity-form" method="POST" action="{{ url_for('add_candidate_activity') }}"> {# You'll need to create this route #}
+                <input type="hidden" id="activity_candidate_id" name="candidate_id">
+                
+                <div class="form-group">
+                    <label for="activity_candidate_name">Candidate Name:</label>
+                    <input type="text" id="activity_candidate_name" name="candidate_name" class="form-control" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="activity_hr_name">HR Name:</label>
+                    <input type="text" id="activity_hr_name" name="hr_name" class="form-control" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="activity_dept_name">Department Name:</label>
+                    <input type="text" id="activity_dept_name" name="dept_name" class="form-control" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="activity_recruiter_name">Recruiter Name:</label>
+                    <input type="text" id="activity_recruiter_name" name="recruiter_name" class="form-control" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="activity_recruiter_id">Recruiter ID:</label>
+                    <input type="text" id="activity_recruiter_id" name="recruiter_id" class="form-control" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="activity_candidate_email">Candidate Email:</label>
+                    <input type="email" id="activity_candidate_email" name="candidate_email" class="form-control" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="activity_candidate_phone">Candidate Phone:</label>
+                    <input type="text" id="activity_candidate_phone" name="candidate_phone" class="form-control" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="activity_candidate_address">Candidate Address:</label>
+                    <textarea id="activity_candidate_address" name="candidate_address" class="form-control" readonly rows="2"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="activity_candidate_education">Candidate Education:</label>
+                    <input type="text" id="activity_candidate_education" name="candidate_education" class="form-control" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="activity_candidate_skills">Skills:</label>
+                    <input type="text" id="activity_candidate_skills" name="candidate_skills" class="form-control" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="activity_candidate_experience">Experience:</label>
+                    <input type="text" id="activity_candidate_experience" name="candidate_experience" class="form-control" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="activity_current_company">Current Company:</label>
+                    <input type="text" id="activity_current_company" name="current_company" class="form-control" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="activity_current_designation">Current Designation:</label>
+                    <input type="text" id="activity_current_designation" name="current_designation" class="form-control" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="activity_current_salary">Current Salary:</label>
+                    <input type="text" id="activity_current_salary" name="current_salary" class="form-control" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="activity_expected_salary">Expected Salary:</label>
+                    <input type="text" id="activity_expected_salary" name="expected_salary" class="form-control" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="activity_current_location">Current Location:</label>
+                    <input type="text" id="activity_current_location" name="current_location" class="form-control" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="activity_current_industry">Current Industry:</label>
+                    <input type="text" id="activity_current_industry" name="current_industry" class="form-control" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="activity_position">Position:</label>
+                    <input type="text" id="activity_position" name="position" class="form-control" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="activity_job_id">Job ID:</label>
+                    <input type="text" id="activity_job_id" name="job_id" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="activity_hod_name">HOD Name:</label>
+                    <input type="text" id="activity_hod_name" name="hod_name" class="form-control" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="activity_hod_id">HOD ID:</label>
+                    <input type="text" id="activity_hod_id" name="hod_id" class="form-control" readonly>
+                </div>
+               
+                <div class="form-group">
+                    <label for="activity_assigned_date">Assigned Date:</label>
+                    <input type="text" id="activity_assigned_date" name="assigned_date" class="form-control" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="activity_status">Status:</label>
+                    <select id="activity_status" name="status" class="form-control" required>
+                        <option value="">Select Status</option>
+                        <option value="Application Received">Application Received</option>
+                        <option value="Under Initial Review">Under Initial Review</option>
+                        <option value="Qualified for Next Stage">Qualified for Next Stage</option>
+                        <option value="First Round Interview">First Round Interview</option>
+                        <option value="Second-Round Interview">Second-Round Interview</option>
+                        <option value="Final Round">Final Round</option>
+                        <option value="Assessment in Progress">Assessment in Progress</option>
+                        <option value="Background Verification">Background Verification</option>
+                        <option value="Offer Extended">Offer Extended</option>
+                        <option value="Offer Accepted">Offer Accepted</option>
+                        <option value="Candidate Joined">Candidate Joined</option>
+                        <option value="Onboarding Initiated">Onboarding Initiated</option>
+                        <option value="Candidate Rejected">Candidate Rejected</option>
+                        <option value="Candidate Withdrew">Candidate Withdrew</option>
+                        <option value="Call Not Answered">Call Not Answered</option>
+                        <option value="Candidate Left">Candidate Left</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="activity_remarks">Remarks:</label>
+                    <textarea id="activity_remarks" name="remarks" class="form-control" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="activity_date">Activity Date:</label>
+                    <input type="datetime-local" id="activity_date" name="activity_date" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="activity_description">Activity Description:</label>
+                    <textarea id="activity_description" name="activity_description" class="form-control" rows="3" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="source">Source:</label>
+                    <textarea id="source" name="source" class="form-control" rows="3" required></textarea>
+                </div>
+
+                
+
+                <div class="form-buttons">
+                    <button type="button" class="btn btn-danger" onclick="closeCandidateActivityModal()">Cancel</button>
+                    <button type="submit" class="btn btn-success">Submit Activity</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    </div>
+{% endblock %}
+
+
+    <!-- Update the edit button function -->
+    <script>
+    // ... existing code ...
+    function closePositionClosureModal() {
+        document.getElementById('position-closure-modal').style.display = 'none';
+    }
+
+    // Candidate Activity Form Functions
+    function openCandidateActivityForm(candidateId, candidateStatus) {
+        const modal = document.getElementById('candidate-activity-modal');
+        
+        const rows = document.querySelectorAll('table tbody tr');
+        let candidateRow = null;
+        
+        for (let row of rows) {
+            const idCell = row.cells[0];
+            if (idCell && idCell.textContent.trim() == candidateId) {
+                candidateRow = row;
+                break;
+            }
+        }
+        
+        if (candidateRow) {
+            document.getElementById('activity_candidate_id').value = candidateId;
+           
+            document.getElementById('activity_candidate_name').value = candidateRow.cells[1].textContent.trim();
+            document.getElementById('activity_hr_name').value = candidateRow.cells[2].textContent.trim();
+            document.getElementById('activity_dept_name').value = candidateRow.cells[3].textContent.trim();
+            document.getElementById('activity_recruiter_name').value = candidateRow.cells[4].textContent.trim();
+            document.getElementById('activity_recruiter_id').value = candidateRow.cells[5].textContent.trim();
+            document.getElementById('activity_candidate_email').value = candidateRow.cells[6].textContent.trim();
+            document.getElementById('activity_candidate_phone').value = candidateRow.cells[7].textContent.trim();
+            document.getElementById('activity_candidate_address').value = candidateRow.cells[8].textContent.trim();
+            document.getElementById('activity_candidate_education').value = candidateRow.cells[9].textContent.trim();
+            document.getElementById('activity_candidate_skills').value = candidateRow.cells[10].textContent.trim();
+            document.getElementById('activity_candidate_experience').value = candidateRow.cells[11].textContent.trim();
+            document.getElementById('activity_current_company').value = candidateRow.cells[12].textContent.trim();
+            document.getElementById('activity_current_designation').value = candidateRow.cells[13].textContent.trim();
+            document.getElementById('activity_current_salary').value = candidateRow.cells[14].textContent.trim();
+            document.getElementById('activity_expected_salary').value = candidateRow.cells[15].textContent.trim();
+            document.getElementById('activity_current_location').value = candidateRow.cells[16].textContent.trim();
+            document.getElementById('activity_current_industry').value = candidateRow.cells[17].textContent.trim();
+            document.getElementById('activity_position').value = candidateRow.cells[18].textContent.trim();
+            document.getElementById('activity_job_id').value = candidateRow.cells[19].textContent.trim()
+            document.getElementById('activity_hod_name').value = candidateRow.cells[20].textContent.trim();
+            document.getElementById('activity_hod_id').value = candidateRow.cells[21].textContent.trim();
+             // Get HOD ID
+            document.getElementById('activity_assigned_date').value = candidateRow.cells[22].textContent.trim();
+            // document.getElementById('activity_status').value = candidateRow.cells[21].textContent.trim(); // Assuming status is in cell 21
+            document.getElementById('activity_status').value = candidateStatus; // Use passed status
+            
+
+            // Set current date for activity_date by default
+            const today = new Date().toISOString().split('T')[0];
+            // document.getElementById('activity_date').value = today;
+            
+            modal.style.display = 'flex';
+        } else {
+            console.error("Candidate data not found for ID:", candidateId);
+        }
+    }
+
+    function closeCandidateActivityModal() {
+        document.getElementById('candidate-activity-modal').style.display = 'none';
+    }
+
+    </script>
+
+
+<!-- Update the edit button function -->
+    <script>
+
+        function viewCandidate(id) {
+            // Implement view functionality
+            console.log("View candidate with ID:", id);
+            // You can add a modal or redirect to a detailed view
+        }
+        
+        function editCandidate(id) {
+            // Implement edit functionality
+            console.log("Edit candidate with ID:", id);
+            // You can add a modal or redirect to an edit form
+        }
+        
+        
+        
+        // Add a contains selector for text content
+        jQuery.expr[':'].contains = function(a, i, m) {
+            return jQuery(a).text().toUpperCase().indexOf(m[3].toUpperCase()) >= 0;
+        };
+        
+        // Search and filter functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const statusFilter = document.getElementById('statusFilter');
+            const positionFilter = document.getElementById('positionFilter');
+            
+            // Add "candidate joined" option to status filter if not already present
+            if (!Array.from(statusFilter.options).some(option => option.value === 'candidate joined')) {
+                const joinedOption = document.createElement('option');
+                joinedOption.value = 'candidate joined';
+                joinedOption.textContent = 'Candidate Joined';
+                statusFilter.appendChild(joinedOption);
+            }
+            
+            // Filter function
+            function filterTable() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const statusValue = statusFilter.value.toLowerCase();
+                const positionValue = positionFilter.value.toLowerCase();
+                
+                const rows = document.querySelectorAll('.table tbody tr');
+                
+                rows.forEach(row => {
+                    const candidateName = row.cells[1].textContent.toLowerCase();
+                    const skills = row.cells[10].textContent.toLowerCase(); // Correct index for Skills column
+                    const status = row.cells[21].textContent.trim().toLowerCase(); // Correct index for Status column
+                    const position = row.cells[18].textContent.toLowerCase(); // Correct index for Position column
+                    
+                    const matchesSearch = candidateName.includes(searchTerm) || 
+                                        skills.includes(searchTerm);
+                    const matchesStatus = statusValue === '' || status.includes(statusValue);
+                    const matchesPosition = positionValue === '' || position.includes(positionValue);
+                    
+                    if (matchesSearch && matchesStatus && matchesPosition) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+                
+                updatePagination();
+            }
+            
+            // Reset filters function
+            window.resetFilters = function() {
+                searchInput.value = '';
+                statusFilter.value = '';
+                positionFilter.value = '';
+                
+                const rows = document.querySelectorAll('.table tbody tr');
+                rows.forEach(row => {
+                    row.style.display = '';
+                });
+                
+                updatePagination();
+            };
+            
+            // Make filterTable function globally accessible
+            window.filterTable = filterTable;
+            
+            // Add event listeners
+            searchInput.addEventListener('keyup', filterTable);
+            statusFilter.addEventListener('change', filterTable);
+            positionFilter.addEventListener('change', filterTable);
+            
+            // Pagination
+            const rowsPerPage = 10;
+            let currentPage = 1;
+            
+            function updatePagination() {
+                const rows = Array.from(document.querySelectorAll('.table tbody tr'))
+                                .filter(row => row.style.display !== 'none');
+                
+                const totalPages = Math.ceil(rows.length / rowsPerPage);
+                const paginationContainer = document.getElementById('pagination');
+                paginationContainer.innerHTML = '';
+                
+                // Previous button
+                const prevBtn = document.createElement('button');
+                prevBtn.className = 'pagination-btn';
+                prevBtn.textContent = '«';
+                prevBtn.addEventListener('click', () => {
+                    if (currentPage > 1) {
+                        currentPage--;
+                        showPage(currentPage);
+                    }
+                });
+                paginationContainer.appendChild(prevBtn);
+                
+                // Page buttons
+                for (let i = 1; i <= totalPages; i++) {
+                    const pageBtn = document.createElement('button');
+                    pageBtn.className = 'pagination-btn' + (i === currentPage ? ' active' : '');
+                    pageBtn.textContent = i;
+                    pageBtn.addEventListener('click', () => {
+                        currentPage = i;
+                        showPage(currentPage);
+                    });
+                    paginationContainer.appendChild(pageBtn);
+                }
+                
+                // Next button
+                const nextBtn = document.createElement('button');
+                nextBtn.className = 'pagination-btn';
+                nextBtn.textContent = '»';
+                nextBtn.addEventListener('click', () => {
+                    if (currentPage < totalPages) {
+                        currentPage++;
+                        showPage(currentPage);
+                    }
+                });
+                paginationContainer.appendChild(nextBtn);
+                
+                showPage(currentPage);
+            }
+            
+            function showPage(page) {
+                const rows = Array.from(document.querySelectorAll('.table tbody tr'))
+                                .filter(row => row.style.display !== 'none');
+                
+                const startIndex = (page - 1) * rowsPerPage;
+                const endIndex = startIndex + rowsPerPage;
+                
+                rows.forEach((row, index) => {
+                    if (index >= startIndex && index < endIndex) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+                
+                // Update active button
+                document.querySelectorAll('.pagination-btn').forEach((btn, index) => {
+                    if (index === 0) return; // Skip previous button
+                    if (index === document.querySelectorAll('.pagination-btn').length - 1) return; // Skip next button
+                    
+                    if (index === page) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+            }
+            
+            // Initialize pagination
+            updatePagination();
+        });
+
+        </script>
+
+        <script>
+        function editCandidate(id) {
+            // Find the table row that matches the candidate ID
+            const rows = document.querySelectorAll('table tbody tr');
+            let selectedRow = null;
+        
+            rows.forEach(row => {
+                if (row.cells[0].textContent.trim() === String(id)) {
+                    selectedRow = row;
+                }
+            });
+        
+            if (selectedRow) {
+                document.getElementById('edit_candidate_id').value = id;
+                document.getElementById('edit_candidate_name').value = selectedRow.cells[1].textContent;
+                // Populate other fields as needed
+        
+                document.getElementById('edit-candidate-modal').style.display = 'flex';
+            }
+        }
+        
+        function closeEditModal() {
+            document.getElementById('edit-candidate-modal').style.display = 'none';
+        }
+
+        function viewcandidateactivity(candidateId) {
+        const modal = document.getElementById('view-candidate-activity-modal');
+
+        if (modal) {
+            modal.style.display = 'flex';
+            modal.setAttribute('data-candidate-id', candidateId);
+
+            // Optional: Clear previous content
+            const activityContainer = modal.querySelector('.activity-container');
+            if (activityContainer) {
+                activityContainer.innerHTML = 'Loading...'; // Placeholder
+            }
+
+            // Optional: Fetch and display candidate activity
+            fetch(`/api/candidate/${candidateId}/activity`)
+                .then(response => response.json())
+                .then(data => {
+                    if (activityContainer) {
+                        activityContainer.innerHTML = data.activities.map(activity => 
+                            `<div>${activity.description}</div>`
+                        ).join('');
+                    }
+                })
+                .catch(error => {
+                    if (activityContainer) {
+                        activityContainer.innerHTML = 'Error loading activity.';
+                    }
+                    console.error('Error fetching candidate activity:', error);
+                });
+        }
+    }
+
+    
+    </script>
+    
+</body>
+</html>

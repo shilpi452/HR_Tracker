@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Joined Candidates</title>
+    <!-- Bootstrap CSS -->
+    <link
+        href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+    <!-- Font Awesome for icons -->
+    <link
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+        rel="stylesheet"
+    >
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .table-container {
+            background: #fff;
+        }
+        th, td {
+            vertical-align: middle !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container my-5">
+        <div class="table-container shadow rounded">
+            <div class="table-header bg-primary text-white p-3 rounded-top">
+                <h5 class="mb-0">
+                    <i class="fas fa-users mr-2"></i>Joined Candidates
+                </h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover table-striped mb-0">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>Closure ID</th>
+                            <th>Candidate Name</th>
+                            <th>Job ID</th>
+                            <th>HR Name</th>
+                            <th>Recruiter Name</th>
+                            <th>Recruiter ID</th>
+                            <th>HOD Name</th>
+                            <TH>Hod Id</TH>
+                            <th>Department</th>
+                            <th>Position</th>
+                            <th>Location</th>
+                            <th>Salary Bracket</th>
+                            <th>Date of Joining</th>
+                            <th>Candidate ID</th>
+                            <th>Remarks</th>
+                            <th>Offered Salary</th>
+                            <th>Joining Bonus</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for candidate in joined_candidates %}
+                        <tr>
+                            <td>{{ candidate.Closure_ID }}</td>
+                            <td class="font-weight-bold">{{ candidate.candidate_name }}</td>
+                            <td>{{ candidate.job_id }}</td>
+                            <td>{{ candidate.hr_name }}</td>
+                            <td>{{ candidate.recruiter_name }}</td>
+                            <td>{{ candidate.recruiter_id }}</td>
+                            <td>{{ candidate.hod_name }}</td>
+                            <td>{{ candidate.hod_id }}</td>
+                            <td>{{ candidate.dept_name }}</td>
+                            <td>{{ candidate.position }}</td>
+                            <td>{{ candidate.location }}</td>
+                            <td>{{ candidate.salary_bracket }}</td>
+                            <td>{{ candidate.doj }}</td>
+                            <td>{{ candidate.candidate_id }}</td>
+                            <td>{{ candidate.remarks }}</td>
+                            <td>{{ candidate.offered_salary }}</td>
+                            <td>{{ candidate.joining_bonus }}</td>
+                            <td>
+                                <span class="badge badge-pill badge-success">{{ candidate.status }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script
+        src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+    ></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"
+    ></script>
+
+</body>
+</html>

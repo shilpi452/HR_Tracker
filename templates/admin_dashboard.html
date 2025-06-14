@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #343a40;
+      --accent: #0d6efd;
+      --light-bg: #f8f9fa;
+      --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--light-bg);
+    }
+
+    .header-fixed {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 70px;
+      background-color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 30px;
+      color: #fff;
+      z-index: 1000;
+    }
+
+    .logout-btn {
+      background-color: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .logout-btn:hover {
+      background-color: #0b5ed7;
+      transform: scale(1.05);
+    }
+
+    .container-wrapper {
+      display: flex;
+      margin-top: 70px;
+      min-height: calc(100vh - 70px);
+    }
+
+    .sidebar {
+      width: 260px;
+      background-color: var(--primary);
+      color: #fff;
+      min-height: 100vh;
+      position: fixed;
+      top: 70px;
+      padding: 30px 20px;
+      overflow-y: auto;
+    }
+
+    .sidebar .nav-link {
+      color: #fff;
+      padding: 10px 15px;
+      border-radius: 6px;
+      transition: 0.3s;
+      font-size: 0.95rem;
+    }
+
+    .sidebar .nav-link:hover,
+    .sidebar .nav-link.collapsed[aria-expanded="true"] {
+      background-color: #495057;
+    }
+
+    .main-content {
+      margin-left: 260px;
+      padding: 40px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .dashboard-container {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .dashboard-container h1 {
+      font-size: 2rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .card {
+      border: none;
+      border-radius: 12px;
+      box-shadow: var(--card-shadow);
+      transition: transform 0.3s;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+    }
+
+    footer {
+      text-align: center;
+      padding: 16px;
+      background-color: #dee2e6;
+      color: #495057;
+      border-radius: 12px;
+      margin-top: auto;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+      }
+
+      .main-content {
+        margin-left: 0;
+      }
+
+      .container-wrapper {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header-fixed">
+  <span class="fw-bold fs-5">Welcome, Admin {{ session.username }}</span>
+  <a href="{{ url_for('login')}}" class="logout-btn">Logout</a>
+</div>
+
+<!-- Wrapper -->
+<div class="container-wrapper">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="accordion" id="sidebarAccordion">
+
+      <!-- Dashboards -->
+      <div class="accordion-item bg-transparent border-0">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed bg-transparent text-white" type="button" data-bs-toggle="collapse" data-bs-target="#dashboardsMenu">
+            <i class="bi bi-speedometer2 me-2"></i> Dashboards
+          </button>
+        </h2>
+        <div id="dashboardsMenu" class="accordion-collapse collapse" data-bs-parent="#sidebarAccordion">
+          <div class="accordion-body p-0">
+            <a class="nav-link" href="{{ url_for('hr_dashboard') }}">HR Dashboard</a>
+            <a class="nav-link" href="{{ url_for('view_recruiter_dashboard') }}">Recruiter Dashboard</a>
+            <a class="nav-link" href="{{ url_for('user_dashboard') }}">User Dashboard</a>
+            
+          </div>
+        </div>
+      </div>
+
+      <!-- Employee Management -->
+      <div class="accordion-item bg-transparent border-0">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed bg-transparent text-white" type="button" data-bs-toggle="collapse" data-bs-target="#employeeMenu">
+            <i class="bi bi-person-badge me-2"></i> Employee Mgmt
+          </button>
+        </h2>
+        <div id="employeeMenu" class="accordion-collapse collapse" data-bs-parent="#sidebarAccordion">
+          <div class="accordion-body p-0">
+            <a class="nav-link" href="{{ url_for('emp_data') }}">View Employees</a>
+            <a class="nav-link" href="#">Add Employee</a>
+            <a class="nav-link" href="#">Employee Documents</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recruitment -->
+      <div class="accordion-item bg-transparent border-0">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed bg-transparent text-white" type="button" data-bs-toggle="collapse" data-bs-target="#recruitmentMenu">
+            <i class="bi bi-briefcase-fill me-2"></i> Recruitment
+          </button>
+        </h2>
+        <div id="recruitmentMenu" class="accordion-collapse collapse" data-bs-parent="#sidebarAccordion">
+          <div class="accordion-body p-0">
+            <a class="nav-link" href="#">Job Postings</a>
+            <a class="nav-link" href="#">Interview Schedule</a>
+            <a class="nav-link" href="#">Applicant Tracking</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Attendance & Payroll -->
+      <div class="accordion-item bg-transparent border-0">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed bg-transparent text-white" type="button" data-bs-toggle="collapse" data-bs-target="#payrollMenu">
+            <i class="bi bi-calendar-check me-2"></i> Attendance & Payroll
+          </button>
+        </h2>
+        <div id="payrollMenu" class="accordion-collapse collapse" data-bs-parent="#sidebarAccordion">
+          <div class="accordion-body p-0">
+            <a class="nav-link" href="#">Attendance</a>
+            <a class="nav-link" href="#">Leave Management</a>
+            <a class="nav-link" href="#">Payroll</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- System -->
+      <div class="accordion-item bg-transparent border-0">
+        <h2 class="accordion-header">
+          <button class="accordion-button collapsed bg-transparent text-white" type="button" data-bs-toggle="collapse" data-bs-target="#systemMenu">
+            <i class="bi bi-gear-fill me-2"></i> System
+          </button>
+        </h2>
+        <div id="systemMenu" class="accordion-collapse collapse" data-bs-parent="#sidebarAccordion">
+          <div class="accordion-body p-0">
+            <a class="nav-link" href="#">Roles & Permissions</a>
+            <a class="nav-link" href="#">System Settings</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="dashboard-container">
+      <h1>Admin Dashboard</h1>
+      <p class="lead">Use the sidebar to navigate through HR management modules.</p>
+
+      <!-- Admin Metrics -->
+      <div class="row mb-4">
+        <div class="col-md-4">
+          <div class="card text-white bg-primary shadow-sm rounded-3">
+            <div class="card-body d-flex align-items-center justify-content-between">
+              <div>
+                <h6 class="card-subtitle mb-2 text-white-50">Total Employees</h6>
+                <h3 class="card-title mb-0">{{ employee_count }}</h3>
+              </div>
+              <i class="bi bi-people-fill fs-1"></i>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card text-white bg-success shadow-sm rounded-3">
+            <div class="card-body d-flex align-items-center justify-content-between">
+              <div>
+                <h6 class="card-subtitle mb-2 text-white-50">Active Job Openings</h6>
+                <h3 class="card-title mb-0">{{ job_openings_count }}</h3>
+              </div>
+              <i class="bi bi-briefcase-fill fs-1"></i>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card text-white bg-warning shadow-sm rounded-3">
+            <div class="card-body d-flex align-items-center justify-content-between">
+              <div>
+                <h6 class="card-subtitle mb-2 text-white-50">Pending Approvals</h6>
+                <h3 class="card-title mb-0">{{ pending_approvals }}</h3>
+              </div>
+              <i class="bi bi-clock-history fs-1"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Cards -->
+      <div class="row g-4 mt-4">
+        <div class="col-md-6 col-lg-4 d-flex">
+          <div class="card h-100 w-100">
+            <div class="card-body">
+              <h5 class="card-title">Employee Details</h5>
+              <p class="card-text">View and manage all employee records and profiles.</p>
+              <!-- Change this in your admin_dashboard.html -->
+            <a href="{{ url_for('emp_data') }}" class="btn btn-primary d-inline-flex align-items-center" style="
+              padding: 0.5rem 1.25rem;
+              border-radius: 6px;
+              font-weight: 500;
+              font-size: 0.9rem;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+              box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+              transition: all 0.3s ease;
+              ">
+                <i class="bi bi-people-fill me-2"></i>
+                View Employee Data
+            </a>
+              
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4 d-flex">
+          <div class="card h-100 w-100">
+            <div class="card-body">
+              <h5 class="card-title">Payroll</h5>
+              <p class="card-text">Manage payroll and salary details efficiently.</p>
+              <a href="#" class="btn btn-outline-success">Go to Payroll</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4 d-flex">
+          <div class="card h-100 w-100">
+            <div class="card-body">
+              <h5 class="card-title">Reports & Analytics</h5>
+              <p class="card-text">Generate reports and visualize HR analytics.</p>
+              
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <footer class="mt-4">
+        <p class="mb-0">&copy; 2023 Your Company Name. All rights reserved.</p> 
+        <p class="mb-0">Version 1.0.0</p>
+      </footer> 
+    </div>
+  </div>  
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>  
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const sidebar = document.querySelector('.sidebar');
+    const sidebarToggle = document.querySelector('.sidebar-toggle');
+
+    sidebarToggle.addEventListener('click', function () {
+      sidebar.classList.toggle('collapsed');
+    });
+  });
+</script>
+</body>   
+</html>
