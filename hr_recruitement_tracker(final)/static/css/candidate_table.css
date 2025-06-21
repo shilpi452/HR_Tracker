@@ -1,0 +1,257 @@
+/* Candidate Table Styles */
+.candidates-container {
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 30px;
+}
+
+.candidates-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.candidates-header h2 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin: 0;
+    font-size: 24px;
+}
+
+.candidates-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.candidates-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background-color: #fff;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.candidates-table thead th {
+    background-color: #3498db;
+    color: white;
+    font-weight: 500;
+    text-align: left;
+    padding: 12px 15px;
+    font-size: 14px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.candidates-table thead th:first-child {
+    border-top-left-radius: 6px;
+}
+
+.candidates-table thead th:last-child {
+    border-top-right-radius: 6px;
+}
+
+.candidates-table tbody tr {
+    transition: all 0.2s ease;
+}
+
+.candidates-table tbody tr:nth-child(even) {
+    background-color: #f5f8fa;
+}
+
+.candidates-table tbody tr:hover {
+    background-color: #ecf0f1;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.candidates-table td {
+    padding: 12px 15px;
+    font-size: 14px;
+    color: #34495e;
+    border-bottom: 1px solid #eee;
+}
+
+.candidates-table td:last-child {
+    text-align: center;
+}
+
+.candidate-status {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-block;
+    text-align: center;
+    min-width: 80px;
+}
+
+.status-applied {
+    background-color: #3498db;
+    color: white;
+}
+
+.status-interviewed {
+    background-color: #f39c12;
+    color: white;
+}
+
+.status-selected {
+    background-color: #2ecc71;
+    color: white;
+}
+
+.status-rejected {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.candidate-actions {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+}
+
+.btn-view, .btn-edit {
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+}
+
+.btn-view {
+    background-color: #3498db;
+    color: white;
+}
+
+.btn-view:hover {
+    background-color: #2980b9;
+}
+
+.btn-edit {
+    background-color: #2ecc71;
+    color: white;
+}
+
+.btn-edit:hover {
+    background-color: #27ae60;
+}
+
+/* Responsive styles */
+@media (max-width: 1200px) {
+    .candidates-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+}
+
+/* Search and filter section */
+.candidates-filters {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.filter-group label {
+    font-size: 14px;
+    color: #7f8c8d;
+    margin-bottom: 0;
+}
+
+.filter-group select, 
+.filter-group input {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #34495e;
+}
+
+.filter-group select:focus, 
+.filter-group input:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.search-box {
+    flex-grow: 1;
+    position: relative;
+}
+
+.search-box input {
+    width: 100%;
+    padding-left: 35px;
+}
+
+.search-box i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #95a5a6;
+}
+
+.btn-filter {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-filter:hover {
+    background-color: #2980b9;
+}
+
+/* Pagination styles */
+.candidates-pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+    gap: 5px;
+}
+
+.pagination-btn {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    background-color: white;
+    color: #34495e;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.pagination-btn:hover {
+    background-color: #f5f8fa;
+}
+
+.pagination-btn.active {
+    background-color: #3498db;
+    color: white;
+    border-color: #3498db;
+}
+
+.pagination-btn.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

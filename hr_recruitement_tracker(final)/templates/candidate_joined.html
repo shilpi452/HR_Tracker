@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Joined Candidate Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="p-4 bg-light">
+
+<div class="container">
+    <h2 class="mb-4">Joined Candidate Details</h2>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>Candidate Name</th>
+                    <th>HR Emp ID</th>
+                    <th>Recruiter Emp ID</th>
+                    <th>Dept Name</th>
+                    <th>Candidate Email</th>
+                    <th>Candidate Phone</th>
+                    <th>Candidate Address</th>
+                    <th>Candidate Education</th>
+                    <th>Candidate Skills</th>
+                    <th>Candidate Experience</th>
+                    <th>Current Designation</th>
+                    <th>Current Location</th>
+                    <th>Position Name</th>
+                    <th>Job ID</th>
+                    <th>Status</th>
+                    <th>Joining Date</th>
+                    <th>Salary</th>
+                    <th>Candidate ID</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in result %}
+                <tr>
+                    <td>{{ r.candidate_name }}</td>
+                    <td>{{ r.hr_emp_id }}</td>
+                    <td>{{ r.recruiter_emp_id }}</td>
+                    <td>{{ r.dept_name }}</td>
+                    <td>{{ r.candidate_email }}</td>
+                    <td>{{ r.candidate_phone }}</td>
+                    <td>{{ r.candidate_address }}</td>
+                    <td>{{ r.candidate_education }}</td>
+                    <td>{{ r.candidate_skills }}</td>
+                    <td>{{ r.candidate_experience }}</td>
+                    <td>{{ r.current_designation }}</td>
+                    <td>{{ r.current_location }}</td>
+                    <td>{{ r.position_name }}</td>
+                    <td>{{ r.job_id }}</td>
+                    <td>{{ r.status }}</td>
+                    <td>{{ r.joining_date.strftime('%Y-%m-%d') if r.joining_date else '' }}</td>
+                    <td>{{ r.salary }}</td>
+                    <td>{{ r.candidate_id }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <a href="{{ url_for('REC_DASHBOARD', username=session['username']) }}" class="btn btn-secondary mt-3">Back to Rec Dashboard</a>
+
+</div>
+
+</body>
+</html>

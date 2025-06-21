@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Recruiter Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <!-- Bootstrap & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+       
+        body {
+            background-color: #f8f9fc;
+        }
+        .sidebar {
+            background-color: #ffffff;
+            border-right: 1px solid #dee2e6;
+            min-height: 100vh;
+        }
+        .sidebar .list-group-item {
+            border: none;
+            border-radius: 0;
+            padding: 12px 20px;
+            font-weight: 500;
+            color: #495057;
+            background-color: transparent;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .sidebar .list-group-item i {
+            margin-right: 10px;
+        }
+        .sidebar .list-group-item:hover {
+            background-color: #f1f1f1;
+            color: #8fc0f3;
+        }
+        .sidebar .list-group-item.active {
+            background-color: #dbe4ee;
+            color: white;
+            font-weight: 600;
+        }
+        .card-summary {
+            border-radius: 10px;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+    
+    </style>
+</head>
+<body>
+
+<!-- Top Navbar -->
+<nav class="navbar navbar-dark bg-dark px-3">
+    <span class="navbar-brand">Recruiter Dashboard</span>
+    <div class="text-white">
+        Welcome, {{ session.get('username') }}
+        <a href="{{ url_for('logout') }}" class="btn btn-outline-light btn-sm ms-3">
+            <i class="bi bi-box-arrow-right"></i> Logout
+        </a>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+        
+        <!-- Sidebar -->
+        <div class="col-md-2 sidebar p-0">
+            <div class="list-group list-group-flush">
+                <a href="#" class="list-group-item list-group-item-action active">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+                
+                <a href="/candidates" class="btn btn-info btn-sm">
+                    <i class="bi bi-person-lines-fill"></i> View Details
+                </a>
+                <a href="{{ url_for('candidate_joined') }}" class="btn btn-info btn-sm">
+                    <i class="bi bi-person-check-fill"></i> Candidate Joined Table
+                </a>
+
+
+                
+
+                <a href="{{ url_for('user_profile') }}" class="list-group-item list-group-item-action {% if request.path.startswith('/profile') %}active{% endif %}">
+                    <i class="bi bi-person-lines-fill"></i> My Profile
+                </a>
+
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-10 py-4">
+            <h3 class="mb-4">Dashboard Overview</h3>
+
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card-summary d-flex align-items-center justify-content-between">
+                        <div>
+                            <p class="text-muted mb-1">Assigned Jobs</p>
+                            <h4>{{ jobs|length }}</h4>
+                        </div>
+                        <i class="bi bi-briefcase text-primary"></i>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card-summary d-flex align-items-center justify-content-between">
+                        <div>
+                            <p class="text-muted mb-1">Completed Jobs</p>
+                            <h4>0</h4>
+                        </div>
+                        <i class="bi bi-check2-circle text-success"></i>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card-summary d-flex align-items-center justify-content-between">
+                        <div>
+                            <p class="text-muted mb-1">My HR Manager</p>
+                            <h4>{{ hr.hr_name if hr else 'N/A' }}</h4>
+                        </div>
+                        <i class="bi bi-person text-warning"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recruiter Information Card -->
+            <div class="card mt-5">
+                <div class="card-header bg-light">
+                    <strong>My Information</strong>
+                </div>
+                <div class="card-body">
+                    <p><strong>Name:</strong> {{ recruiter.emp_name }}</p>
+                    <p><strong>Designation:</strong> {{ recruiter.designation }}</p>
+                    <p><strong>Department:</strong> {{ recruiter.department }}</p>
+                    <p><strong>Phone:</strong> {{ recruiter.phone_num }}</p>
+                    <p><strong>Location:</strong> {{ recruiter.location }}</p>
+                </div>
+            </div>
+
+            <!-- Job Table -->
+            {% if jobs %}
+            <div class="card mt-4">
+                <div class="card-header bg-light">
+                    <strong>My Job Assignments</strong>
+                </div>
+                <div class="card-body table-responsive">
+                    <table class="table table-bordered table-striped">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Job Assigned ID</th>
+                                <th>Job ID</th>
+                                <th>Position</th>
+                                <th>Department</th>
+                                <th>Status</th>
+                                <th>Assigned Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for job in jobs %}
+                            <tr>
+                                <td>{{ job.job_assigned_id}}</td>
+                                <td>{{ job.job_id }}</td>
+                                <td>{{ job.position_name }}</td>
+                                <td>{{ job.dept_name }}</td>
+                                <td>
+                                    {% if job.assigned_status == 'active' %}
+                                    <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">{{ job.assigned_status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ job.assigned_date.strftime('%Y-%m-%d') if job.assigned_date else 'N/A' }}</td>
+                                <td>
+                                    <a href="{{ url_for('add_candidate', job_id=job.job_id) }}" class="btn btn-sm btn-primary">Add Candidate</a>
+                                        
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% else %}
+            <div class="alert alert-info mt-4">No job assignments found.</div>
+            {% endif %}
+
+
+          
+
+
+    
+           
+
+<script>
+    function toggleJobAssignmentsSection() {
+        const section = document.getElementById('jobAssignmentsSection');
+        section.style.display = (section.style.display === 'none' || section.style.display === '') ? 'block' : 'none';
+    }
+   
+    function toggleCandidateDataSection() {
+        const section = document.getElementById('candidateDataSection');
+        section.style.display = (section.style.display === 'none') ? 'block' : 'none';
+    }
+
+</script>
+
+
+   
+
+</body>
+</html>

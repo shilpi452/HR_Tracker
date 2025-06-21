@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Job Assigned Table</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <!-- Bootstrap & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+<div class="container mt-4">
+
+    <!-- Back Button -->
+    <a href="{{ url_for('Hr_Dashboard') }}" class="btn btn-secondary mb-3">
+        <i class="bi bi-arrow-left"></i> Back to Dashboard
+    </a>
+
+    <!-- Recruiter Filter -->
+    <!-- Recruiter Filter -->
+    <form method="get" action="{{ url_for('job_assigned_table') }}" class="mb-3">
+        <div class="row g-2 align-items-center">
+            <div class="col-auto">
+                <label for="recruiter_filter" class="form-label">Select Recruiter:</label>
+            </div>
+            <div class="col-auto">
+                <select name="recruiter_id" id="recruiter_filter" class="form-select">
+                    <option value="">-- All Recruiters --</option>
+                    {% for recruiter in recruiters %}
+                        <option value="{{ recruiter.emp_id }}" {% if recruiter.emp_id|string == selected_recruiter %}selected{% endif %}>
+                            {{ recruiter.emp_name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-funnel"></i> Filter
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Assigned Jobs Table -->
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered" id="assignedJobsTable">
+            <thead class="table-dark">
+                <tr>
+                    <th>Job Assigned ID</th>
+                    <th>Job ID</th>
+                    <th>Emp Name</th>
+                    <th>HR Emp ID</th>
+                    <th>Recruiter Emp ID</th>
+                    <th>Dept Name</th>
+                    <th>Dept ID</th>
+                    <th>Position Name</th>
+                    <th>Position ID</th>
+                    <th>Status</th>
+                    <th>Assigned Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if assigned_data %}
+                    {% for row in assigned_data %}
+                    <tr>
+                        <td>{{ row.job_assigned_id }}</td>
+                        <td>{{ row.job_id }}</td>
+                        <td>{{ row.emp_name }}</td>
+                        <td>{{ row.hr_emp_id }}</td>
+                        <td>{{ row.recruiter_emp_id }}</td>
+                        <td>{{ row.dept_name }}</td>
+                        <td>{{ row.dept_id }}</td>
+                        <td>{{ row.position_name }}</td>
+                        <td>{{ row.position_id }}</td>
+                        <td>{{ row.assigned_status }}</td>
+                        <td>{{ row.assigned_date }}</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="11" class="text-center text-muted">No job assignments found.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>

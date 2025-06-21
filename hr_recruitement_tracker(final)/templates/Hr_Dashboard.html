@@ -1,0 +1,1433 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary: #343a40;
+            --accent: #0d6efd;
+            --light-bg: #f8f9fa;
+            --sidebar-width: 250px;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+        }
+
+        /* Header Styles */
+        .dashboard-header {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 25px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            height: 70px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Sidebar Styles */
+        .dashboard-sidebar {
+            width: var(--sidebar-width);
+            background-color: white;
+            position: fixed;
+            top: 70px;
+            left: 0;
+            bottom: 0;
+            padding: 20px 0;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 5px;
+        }
+
+        .sidebar-menu a {
+            display: block;
+            padding: 10px 20px;
+            color: #495057;
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background-color: rgba(13, 110, 253, 0.1);
+            color: var(--accent);
+            border-left-color: var(--accent);
+        }
+
+        .sidebar-menu i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content Styles */
+        .dashboard-main {
+            margin-left: var(--sidebar-width);
+            margin-top: 70px;
+            padding: 25px;
+        }
+
+        /* Card Styles */
+        .metric-card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s;
+            height: 100%;
+            background-color: white;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-icon {
+            font-size: 2rem;
+            opacity: 0.7;
+        }
+
+        /* ===== Redesigned Table Styles ===== */
+        .table-container {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 25px;
+            margin-bottom: 30px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .table-container:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .table-header h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin: 0;
+            position: relative;
+            padding-left: 15px;
+        }
+
+        .table-header h2::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 70%;
+            width: 4px;
+            background-color: var(--accent);
+            border-radius: 2px;
+        }
+
+        .table-controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .table-controls input {
+            padding: 10px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            min-width: 220px;
+            transition: all 0.3s;
+            background-color: #f9f9f9;
+        }
+
+        .table-controls input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+            background-color: white;
+        }
+
+        .table-controls select {
+            padding: 10px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            background-color: #f9f9f9;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .table-controls select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+        }
+
+        .table-controls button {
+            padding: 10px 18px;
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .table-controls button:hover {
+            background-color: #0b5ed7;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(13, 110, 253, 0.25);
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.92rem;
+        }
+
+        .table th {
+            background-color: #f8fafc;
+            color: #4a5568;
+            font-weight: 600;
+            padding: 15px;
+            text-align: left;
+            position: relative;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .table th:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 60%;
+            width: 1px;
+            background-color: #e2e8f0;
+        }
+
+        .table td {
+            padding: 15px;
+            color: #4a5568;
+            border-bottom: 1px solid #f1f5f9;
+            transition: background-color 0.2s;
+        }
+
+        .table tr:not(:last-child) td {
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .table tr:hover td {
+            background-color: #f8fafc;
+        }
+
+        .table tr:first-child th:first-child {
+            border-top-left-radius: 8px;
+        }
+
+        .table tr:first-child th:last-child {
+            border-top-right-radius: 8px;
+        }
+
+        .table tr:last-child td:first-child {
+            border-bottom-left-radius: 8px;
+        }
+
+        .table tr:last-child td:last-child {
+            border-bottom-right-radius: 8px;
+        }
+        .table-responsive{
+            width:auto;
+        }
+
+        /* Enhanced Status Badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 12px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .badge-open {
+            background-color: #ebf5ff;
+            color: #3182ce;
+        }
+
+        .badge-assigned {
+            background-color: #ebf8f2;
+            color: #38a169;
+        }
+
+        .badge-closed {
+            background-color: #fff5f5;
+            color: #e53e3e;
+        }
+
+        .badge-in-progress {
+            background-color: #fffaf0;
+            color: #dd6b20;
+        }
+
+        /* Action Buttons with Icons */
+        .action-btn {
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .action-btn i {
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0b5ed7;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(13, 110, 253, 0.2);
+        }
+
+        .btn-secondary {
+            background-color: #edf2f7;
+            color: #4a5568;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e2e8f0;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+        .card{
+            width:auto;
+            margin-bottom: 20px;
+
+        }
+
+        /* Zebra Striping Option (uncomment to enable) */
+        /*
+    .table tbody tr:nth-child(even) {
+        background-color: #f8fafc;
+    }
+    */
+
+        /* Hover Animation */
+        .table tbody tr {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .table tbody tr:hover {
+            transform: translateX(4px);
+            box-shadow: 4px 0 0 0 var(--accent) inset;
+        }
+
+        /* Responsive Table */
+        @media (max-width: 768px) {
+            .table-container {
+                padding: 15px;
+                border-radius: 10px;
+            }
+
+            .table-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 15px;
+            }
+
+            .table-controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .table-controls input,
+            .table-controls select {
+                width: 100%;
+                min-width: auto;
+            }
+
+            .table-controls button {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .table thead {
+                display: none;
+            }
+
+            .table,
+            .table tbody,
+            .table tr,
+            .table td {
+                display: block;
+                width: 100%;
+            }
+
+            .table tr {
+                margin-bottom: 15px;
+                border: 1px solid #e2e8f0;
+                border-radius: 8px;
+                padding: 0;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .table td {
+                padding: 12px 15px;
+                text-align: right;
+                position: relative;
+                border-bottom: 1px solid #f1f5f9;
+            }
+
+            .table td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 15px;
+                top: 50%;
+                transform: translateY(-50%);
+                font-weight: 600;
+                color: #4a5568;
+            }
+
+            .table td:last-child {
+                border-bottom: none;
+            }
+
+            .action-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            /* Remove hover animation on mobile */
+            .table tbody tr:hover {
+                transform: none;
+                box-shadow: none;
+            }
+        }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+
+        .badge-open {
+            background-color: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .badge-assigned {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .badge-closed {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .badge-in-progress {
+            background-color: #fff8e1;
+            color: #ff8f00;
+        }
+
+        /* Action Buttons */
+        .action-btn {
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0b5ed7;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5c636a;
+        }
+
+        .assign-btn {
+            background-color: var(--accent);
+            color: #fff;
+            font-weight: 500;
+            padding: 6px 14px;
+            font-size: 14px;
+            border: none;
+            border-radius: 6px;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .assign-btn:hover {
+            background-color: #0b5ed7;
+            box-shadow: 0 4px 8px rgba(13, 110, 253, 0.3);
+            color: #fff;
+        }
+
+        .assign-btn i {
+            margin-right: 4px;
+        }
+
+        /* Responsive Table */
+        @media (max-width: 768px) {
+            .table-container {
+                padding: 15px;
+            }
+
+            .table-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .table-controls {
+                width: 100%;
+            }
+
+            .table-controls input,
+            .table-controls select {
+                flex-grow: 1;
+                min-width: 0;
+            }
+
+            .table thead {
+                display: none;
+            }
+
+            .table,
+            .table tbody,
+            .table tr,
+            .table td {
+                display: block;
+                width: 100%;
+            }
+
+            .table tr {
+                margin-bottom: 15px;
+                border: 1px solid #e0e0e0;
+                border-radius: 4px;
+                padding: 10px;
+            }
+
+            .table td {
+                padding: 8px 10px;
+                text-align: right;
+                position: relative;
+                border-bottom: 1px solid #f0f0f0;
+            }
+
+            .table td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 10px;
+                top: 8px;
+                font-weight: 600;
+                color: #495057;
+            }
+
+            .table td:last-child {
+                border-bottom: none;
+            }
+
+            .action-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Role-specific elements */
+        .hr-only {
+            display: none;
+        }
+
+        .recruiter-only {
+            display: none;
+        }
+
+        /* Profile Card Styles */
+        .profile-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .profile-card-header {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 20px;
+        }
+
+        .profile-card-body {
+            padding: 20px;
+        }
+
+        .profile-table {
+            width: 100px;
+        }
+
+        .profile-table tr:not(:last-child) {
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .profile-table th {
+            width: 30%;
+            padding: 10px 15px;
+            text-align: left;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .profile-table td {
+            padding: 10px 15px;
+            color: #495057;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 992px) {
+            .dashboard-sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+                z-index: 1001;
+            }
+
+            .dashboard-sidebar.show {
+                transform: translateX(0);
+            }
+
+            .dashboard-main {
+                margin-left: 0;
+            }
+
+            .sidebar-overlay {
+                position: fixed;
+                top: 70px;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 1000;
+                display: none;
+            }
+
+            .sidebar-overlay.show {
+                display: block;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="dashboard-header">
+        <div class="header-left">
+            <button class="btn btn-sm btn-outline-light d-lg-none" id="sidebarToggle">
+                <i class="bi bi-list"></i>
+            </button>
+            <span class="ms-3">HR Dashboard</span>
+        </div>
+        <div class="header-right">
+            <span class="me-3" id="currentUsername">Welcome, {{ username }}</span>
+
+            <a href="{{ url_for('logout')}}" class="btn btn-sm btn-outline-light">
+                <i class="bi bi-box-arrow-right"></i> Logout
+            </a>
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <aside class="dashboard-sidebar">
+        <ul class="sidebar-menu">
+            <li>
+                <a href="#" class="active" data-target="dashboard">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                
+                <a class="nav-link" href="{{ url_for('job_openings') }}">
+                    <i class="bi bi-briefcase"></i> Job Openings
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('job_assigned_table') }}" >
+                    <i class="bi bi-table"></i> Job Assigned Table
+                </a>
+            </li>
+
+            </li>
+
+            <li class="hr-only">
+                <a href="#" data-target="assignmentForm">
+                    <i class="bi bi-person-plus"></i> Assignment Form
+                </a>
+            </li>
+            
+
+            <a href="{{ url_for('user_profile') }}" class="list-group-item list-group-item-action {% if request.path.startswith('/profile') %}active{% endif %}">
+                <i class="bi bi-person-lines-fill"></i> My Profile
+            </a>
+
+
+        </ul>
+    </aside>
+    <div class="sidebar-overlay"></div>
+
+    <!-- Main Content -->
+    <main class="dashboard-main">
+        <!-- Dashboard Tab -->
+        <div class="tab-content" id="dashboardTab">
+            <div class="tab-pane fade show active" id="dashboard">
+                <h2 class="mb-4">Dashboard Overview</h2>
+
+                <div class="row mb-4">
+                    <div class="col-md-4 mb-3">
+                        <div class="card metric-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-muted mb-2">Total Recruiters</h6>
+                                        <h3 id="totalRecruiters">{{ total_recruiters }}</h3>
+                                    </div>
+                                    <i class="bi bi-people card-icon text-primary"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card metric-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-muted mb-2">Active Jobs</h6>
+                                        <h3 id="activeJobs">0</h3>
+                                    </div>
+                                    <i class="bi bi-briefcase card-icon text-success"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card metric-card">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-muted mb-2">Completed Assignments</h6>
+                                        <h3 id="completedAssignments">0</h3>
+                                    </div>
+                                    <i class="bi bi-check-circle card-icon text-info"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+
+                <!-- My Team Card -->
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0">My Team</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="myTeamTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Emp ID</th>
+                                            <th>Emp Code</th>
+                                            <th>Role</th>
+                                            <th>Active Jobs</th>
+                                            <th>Contact</th>
+                                            <th>View Dashboard</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for recruiter in recruiters %}
+                                        <tr>
+                                            <td>{{ recruiter.emp_name }}</td>
+                                            <td>{{ recruiter.emp_id }}</td>
+                                            <td>{{ recruiter.emp_code }}</td>
+                                            <td>{{ recruiter.designation }}</td>
+                                            <td>{{ recruiter.active_jobs or 0 }}</td>
+                                            <td>{{ recruiter.phone_num }}</td>
+                                            <td>
+                                                <a href="{{ url_for('REC_DASHBOARD', username=recruiter.username) }}" class="btn btn-sm btn-primary">
+                                                    <i class="bi bi-eye"></i> View
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- My HR Details Card -->
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0">My HR Details</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-striped">
+                                <tbody>
+                                    <tr>
+                                        <th>Name</th>
+                                        <td>{{ employee_data.emp_name }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Emp ID</th>
+                                        <td>{{ employee_data.emp_id }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Username</th>
+                                        <td>{{ employee_data.username }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Designation</th>
+                                        <td>{{ employee_data.designation }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Department</th>
+                                        <td>{{ employee_data.department }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Phone</th>
+                                        <td>{{ employee_data.phone_num }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Location</th>
+                                        <td>{{ employee_data.location }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Joining Date</th>
+                                        <td>{{ employee_data.joining_date.strftime('%Y-%m-%d') if employee_data.joining_date else 'N/A' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Salary</th>
+                                        <td>₹{{ "{:,.2f}".format(employee_data.salary) }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Role</th>
+                                        <td>{{ employee_data.role }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!-- Job Openings Tab -->
+            <!-- Add this to your tab-content section -->
+            <!-- <div class="tab-pane fade" id="jobOpenings">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>Job Openings</h2>
+                    <button class="btn btn-primary hr-only" id="addJobBtn">
+                        <i class="bi bi-plus-circle"></i> Add New Job
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <h2>All Job Openings</h2>
+                        <div class="table-controls">
+                            <input type="text" id="jobOpeningSearch" placeholder="Search jobs..." class="form-control">
+                            <select id="jobOpeningStatusFilter" class="form-select">
+                                <option value="">All Status</option>
+                                <option value="Open">Open</option>
+                                <option value="Closed">Closed</option>
+                                <option value="On Hold">On Hold</option>
+                            </select>
+                            <button class="btn btn-primary" onclick="filterJobOpenings()">
+                                <i class="bi bi-funnel"></i> Filter
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="jobOpeningsTable">
+                            <thead>
+                                <tr>
+                                    <th>Job ID</th>
+                                    <th>Position</th>
+                                    <th>Department</th>
+                                    <th>Created At</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for job in jobs %}
+                                <tr>
+                                    <td>{{ job.job_id }}</td>
+                                    <td>{{ job.position_name }}</td>
+                                    <td>{{ job.dept_name }}</td>
+                                    <td>{{ job.created_at.strftime('%d-%m-%Y') }}</td>
+                                    <td>
+                                        <span class="status-badge badge-{{ 'success' if job.status == 'Open' else 'warning' if job.status == 'On Hold' else 'danger' }}">
+                                            {{ job.status }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#jobDetailsModal{{ job.job_id }}">
+                                            <i class="bi bi-eye"></i> View
+                                        </button>
+                                        {% if job.status in ['Open', 'In progress'] %}
+                                        <button class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#assignJobModal{{ job.job_id }}">
+                                            <i class="bi bi-person-plus"></i> Assign
+                                        </button>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div> -->
+
+            
+
+            <!-- Job Assignments Tab -->
+            <div class="tab-pane fade" id="jobAssignments">
+                <h2 class="mb-4">Job Assignments</h2>
+
+                <div class="card job-table">
+                    <div class="card-body">
+                        <!-- Search & Filter Section -->
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="d-flex">
+                                <input type="text" class="form-control me-2" placeholder="Search..."
+                                    id="jobTableSearch">
+                                <select class="form-select me-2" id="jobStatusFilter">
+                                    <option value="">All Statuses</option>
+                                    <option value="Assigned">Assigned</option>
+                                    <option value="Unassigned">Unassigned</option>
+                                    <option value="Hold">Hold</option>
+                                </select>
+                                <button class="btn btn-primary" onclick="filterJobAssignments()">Filter</button>
+                            </div>
+                        </div>
+
+                        <!-- Table -->
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="jobAssignmentsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Job Assigned ID</th>
+                                        <th>Job ID</th>
+                                        <th>Emp Name</th>
+                                        <th>Hr Emp ID</th>
+                                        <th>Recruiter Emp ID</th>
+                                        <th>Dept Name</th>
+                                        <th>Dept ID</th>
+                                        <th>Position Name</th>
+                                        <th>Position ID</th>
+                                        <th>Assigned Status</th>
+                                        <th>Assigned Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if assigned_data %}
+                                    {% for assignment in assigned_data %}
+                                    <tr>
+                                        <td>{{ assignment.job_assigned_id }}</td>
+                                        <td>{{ assignment.job_id }}</td>
+                                        <td>{{ assignment.emp_name }}</td>
+                                        <td>{{ assignment.hr_emp_id }}</td>
+                                        <td>{{ assignment.recruiter_emp_id }}</td>
+                                        <td>{{ assignment.dept_name }}</td>
+                                        <td>{{ assignment.dept_id }}</td>
+                                        <td>{{ assignment.position_name }}</td>
+                                        <td>{{ assignment.position_id }}</td>
+                                        <td>{{ assignment.assigned_status }}</td>
+                                        <td>{{ assignment.assigned_date }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="11" class="text-center">No job assignments found.</td>
+                                    </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Tab -->
+            <div class="tab-pane fade" id="profile">
+                <h2 class="mb-4">My Profile</h2>
+
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Personal Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <table class="table table-sm">
+                                    <tr>
+                                        <th width="40%">Employee ID</th>
+                                        <td><b>{{ employee_data.emp_id if employee_data else '-' }}</b></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Employee Code</th>
+                                        <td><b>{{ employee_data.emp_code if employee_data else '-' }}</b></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Full Name</th>
+                                        <td><b>{{ employee_data.emp_name if employee_data else '-' }}</b></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Gender</th>
+                                        <td><b>{{ employee_data.gender if employee_data else '-' }}</b></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Joining Date</th>
+                                        <td><b>
+                                            {{employee_data.joining_date if employee_data else '-'}}
+                                        </b></td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <table class="table table-sm">
+                                    <tr>
+                                        <th width="40%">Designation</th>
+                                        <td><b>{{ employee_data.designation if employee_data else '-' }}</b></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Department</th>
+                                        <td><b>{{ employee_data.department if employee_data else '-' }}</b></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Designation</th>
+                                        <td><b>{{ employee_data.designation if employee_data else '-' }}</b></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Location</th>
+                                        <td><b>{{ employee_data.location if employee_data else '-' }}</b></td>
+                                    </tr>
+                                    
+                                    <tr>
+                                        <th>Phone</th>
+                                        <td><b>{{ employee_data.phone_num if employee_data else '-' }}</b></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modals for Job Assignment -->
+        {% if jobs %}
+        {% for job in jobs %}
+        <!-- Assign Job Modal -->
+        <div class="modal fade" id="assignJobModal{{ job.job_id }}" tabindex="-1" aria-labelledby="assignJobLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <form method="POST" action="{{ url_for('assign_job') }}">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="assignJobLabel">Assign Job (ID: {{ job.job_id }})</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body row g-3">
+                            <!-- Hidden Fields -->
+                            <input type="hidden" name="job_id" value="{{ job.job_id }}">
+                            <input type="hidden" name="dept_id" value="{{ job.dept_id }}">
+                            <input type="hidden" name="dept_name" value="{{ job.dept_name }}">
+                            <input type="hidden" name="position_id" value="{{ job.position_id }}">
+                            <input type="hidden" name="position_name" value="{{ job.position_name }}">
+
+                            <div class="col-md-6">
+                                <label class="form-label">Employee Name</label>
+                                <input type="text" class="form-control" name="emp_name" value="{{ job.emp_name }}"
+                                    readonly>
+                            </div>
+
+                            <!-- HR Emp ID (from session) -->
+                            <div class="col-md-6">
+                                <label class="form-label">HR Emp ID</label>
+                                <input type="text" class="form-control" name="hr_emp_id"
+                                    value="{{ session['hr_emp_id'] }}" readonly>
+                            </div>
+
+                            <!-- Recruiter Emp ID -->
+                            <div class="col-md-6">
+                                <label class="form-label">Recruiter Emp ID</label>
+                                <select class="form-select" name="recruiter_emp_id" required>
+                                    <option value="">Select Recruiter</option>
+                                    {% for rec in recruiters %}
+                                    <option value="{{ rec.emp_id }}">{{ rec.emp_id }} - {{ rec.emp_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Assigned Status -->
+                            <div class="col-md-6">
+                                <label class="form-label">Assigned Status</label>
+                                <select class="form-select" name="assigned_status" required>
+                                    <option value="">Select Status</option>
+                                    {% for status in ['Assigned', 'Unassigned', 'Hold'] %}
+                                    <option value="{{ status }}">{{ status }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+      
+        
+</body>
+
+</html>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // ========== SIDEBAR TOGGLE FUNCTIONALITY ==========
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.querySelector('.dashboard-sidebar');
+        const sidebarOverlay = document.querySelector('.sidebar-overlay');
+        
+        // Initialize Bootstrap tooltips
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+
+        // Toggle sidebar on mobile
+        if (sidebarToggle && sidebar && sidebarOverlay) {
+            sidebarToggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                sidebar.classList.toggle('show');
+                sidebarOverlay.classList.toggle('show');
+            });
+            
+            sidebarOverlay.addEventListener('click', function() {
+                sidebar.classList.remove('show');
+                sidebarOverlay.classList.remove('show');
+            });
+        }
+
+        // ========== TAB NAVIGATION SYSTEM ==========
+        const navLinks = document.querySelectorAll('.sidebar-menu a[data-target]');
+        navLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('data-target');
+                
+                // Special handling for assignment form
+                if (targetId === 'assignmentForm') {
+                    handleAssignmentFormClick();
+                    return;
+                }
+                
+                const targetPane = document.getElementById(targetId);
+                
+                if (!targetPane) {
+                    console.error('Target pane not found:', targetId);
+                    return;
+                }
+                
+                updateActiveTab(this, targetPane);
+                
+                // Close sidebar on mobile
+                if (window.innerWidth < 992) {
+                    sidebar?.classList.remove('show');
+                    sidebarOverlay?.classList.remove('show');
+                }
+            });
+        });
+
+        // ========== ROLE-BASED ELEMENT VISIBILITY ==========
+        if ("{{ employee_data.role }}" === "HR") {
+            document.querySelectorAll('.hr-only').forEach(el => {
+                el.style.display = 'block';
+            });
+        }
+
+        // ========== INITIALIZE MODALS ==========
+        initModals();
+
+        // ========== INITIALIZE AJAX FORMS ==========
+        setupAjaxForms();
+
+        // ========== EVENT LISTENERS FOR FILTERS ==========
+        document.getElementById('jobSearch')?.addEventListener('keyup', filterJobs);
+        document.getElementById('statusFilter')?.addEventListener('change', filterJobs);
+        document.getElementById('jobTableSearch')?.addEventListener('keyup', filterJobAssignments);
+        document.getElementById('jobStatusFilter')?.addEventListener('change', filterJobAssignments);
+    });
+
+    // ========== UTILITY FUNCTIONS ==========
+
+    function updateActiveTab(activeLink, activePane) {
+        // Remove active class from all links
+        document.querySelectorAll('.sidebar-menu a[data-target]').forEach(navLink => {
+            navLink.classList.remove('active');
+        });
+        
+        // Add active class to clicked link
+        activeLink.classList.add('active');
+        
+        // Hide all tab panes
+        document.querySelectorAll('.tab-pane').forEach(pane => {
+            pane.classList.remove('show', 'active');
+        });
+        
+        // Show selected tab pane
+        activePane.classList.add('show', 'active');
+    }
+
+    function handleAssignmentFormClick() {
+        const assignModals = document.querySelectorAll('[id^="assignJobModal"]');
+        
+        if (assignModals.length > 0) {
+            // Open the first available modal
+            const firstModal = new bootstrap.Modal(assignModals[0]);
+            firstModal.show();
+        } else {
+            // Fallback behavior
+            alert('No jobs available for assignment. Please check job openings first.');
+            const jobOpeningsTab = document.getElementById('jobOpenings');
+            const jobOpeningsLink = document.querySelector('[data-target="jobOpenings"]');
+            
+            if (jobOpeningsTab && jobOpeningsLink) {
+                updateActiveTab(jobOpeningsLink, jobOpeningsTab);
+            }
+        }
+    }
+
+    function initModals() {
+        // Initialize all modals with enhanced functionality
+        document.querySelectorAll('.modal').forEach(modalEl => {
+            modalEl.addEventListener('shown.bs.modal', function() {
+                // Focus on first input when modal opens
+                const firstInput = modalEl.querySelector('input, select, textarea');
+                if (firstInput) {
+                    firstInput.focus();
+                }
+            });
+            
+            // Close button functionality
+            modalEl.querySelectorAll('[data-bs-dismiss="modal"]').forEach(closeBtn => {
+                closeBtn.addEventListener('click', function() {
+                    const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                    if (modalInstance) {
+                        modalInstance.hide();
+                    }
+                });
+            });
+        });
+    }
+
+    function setupAjaxForms() {
+        document.querySelectorAll('form[data-ajax]').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const submitBtn = form.querySelector('[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                
+                showLoading(submitBtn);
+                
+                fetch(form.action, {
+                    method: form.method,
+                    body: new FormData(form),
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        if (data.redirect) {
+                            window.location.href = data.redirect;
+                        } else if (form.dataset.reload !== 'false') {
+                            location.reload();
+                        }
+                        if (data.message) {
+                            showToast('Success', data.message, 'success');
+                        }
+                    } else {
+                        showToast('Error', data.message || 'An error occurred', 'danger');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Error', 'Request failed', 'danger');
+                })
+                .finally(() => {
+                    hideLoading(submitBtn, originalText);
+                });
+            });
+        });
+    }
+
+    function showLoading(element) {
+        element.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Processing...';
+        element.disabled = true;
+    }
+
+    function hideLoading(element, originalText) {
+        element.innerHTML = originalText;
+        element.disabled = false;
+    }
+
+    function showToast(title, message, type = 'info') {
+        const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+        const toastId = 'toast-' + Math.random().toString(36).substr(2, 9);
+        
+        const toastHTML = `
+            <div id="${toastId}" class="toast align-items-center text-white bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <strong>${title}</strong><br>${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+        `;
+        
+        toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+        const toastEl = document.getElementById(toastId);
+        const toast = new bootstrap.Toast(toastEl);
+        toast.show();
+        
+        // Remove toast after it hides
+        toastEl.addEventListener('hidden.bs.toast', function() {
+            toastEl.remove();
+        });
+    }
+
+    function createToastContainer() {
+        const container = document.createElement('div');
+        container.id = 'toastContainer';
+        container.style.position = 'fixed';
+        container.style.top = '20px';
+        container.style.right = '20px';
+        container.style.zIndex = '1100';
+        document.body.appendChild(container);
+        return container;
+    }
+
+    function filterJobs() {
+        const search = document.getElementById('jobSearch')?.value.toLowerCase() || '';
+        const status = document.getElementById('statusFilter')?.value.toLowerCase() || '';
+        
+        document.querySelectorAll('#jobOpeningsTable tbody tr').forEach(row => {
+            const rowText = row.innerText.toLowerCase();
+            const matchesSearch = search === '' || rowText.includes(search);
+            const matchesStatus = status === '' || rowText.includes(status);
+            
+            row.style.display = (matchesSearch && matchesStatus) ? '' : 'none';
+        });
+    }
+
+    function filterJobAssignments() {
+        const search = document.getElementById('jobTableSearch')?.value.toLowerCase() || '';
+        const status = document.getElementById('jobStatusFilter')?.value.toLowerCase() || '';
+        
+        document.querySelectorAll('#jobAssignmentsTable tbody tr').forEach(row => {
+            const rowText = row.innerText.toLowerCase();
+            const matchesSearch = search === '' || rowText.includes(search);
+            const matchesStatus = status === '' || rowText.includes(status);
+            
+            row.style.display = (matchesSearch && matchesStatus) ? '' : 'none';
+        });
+    }
+
+    // Make functions available globally if needed
+    window.filterJobs = filterJobs;
+    window.filterJobAssignments = filterJobAssignments;
+</script>

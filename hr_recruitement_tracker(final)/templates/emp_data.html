@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Data</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --dark-bg: #212529;
+            --light-bg: #f8f9fa;
+            --border-color: #dee2e6;
+            --hover-bg: #f1f1f1;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .container {
+            margin-top: 30px;
+            padding-bottom: 60px;
+            max-width: 2000px;
+        }
+
+        .card {
+            border: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background-color: var(--dark-bg);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-bottom: none;
+        }
+
+        .table-responsive {
+            border-radius: 0 0 8px 8px;
+            overflow: hidden;
+        }
+
+        .table th {
+            background-color: var(--dark-bg);
+            color: white;
+            padding: 12px 15px;
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            width: 100px;
+        }
+
+        .table td {
+            padding: 12px 15px;
+            vertical-align: middle;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .table-hover tbody tr:hover td {
+            background-color: var(--hover-bg);
+        }
+        /* Specific column widths */
+        .table th:nth-child(1), .table td:nth-child(1) { width: 70px; }  /* EMP ID */
+        .table th:nth-child(2), .table td:nth-child(2) { width: 100px; } /* Username */
+        .table th:nth-child(3), .table td:nth-child(3) { width: 120px; } /* Name */
+        .table th:nth-child(4), .table td:nth-child(4) { width: 80px; }  /* Code */
+        .table th:nth-child(5), .table td:nth-child(5) { width: 80px; }  /* Gender */
+        .table th:nth-child(6), .table td:nth-child(6) { width: 120px; } /* Phone */
+        .table th:nth-child(7), .table td:nth-child(7) { width: 100px; } /* Location */
+        .table th:nth-child(8), .table td:nth-child(8) { width: 140px; } /* Designation */
+        .table th:nth-child(9), .table td:nth-child(9) { width: 140px; } /* Department */
+        .table th:nth-child(10), .table td:nth-child(10) { width: 100px; } /* Dept ID */
+        .table th:nth-child(11), .table td:nth-child(11) { width: 100px; } /* Salary */
+        .table th:nth-child(12), .table td:nth-child(12) { width: 100px; } /* Joined */
+        .table th:nth-child(13), .table td:nth-child(13) { width: 100px; } /* Role */
+        .table th:nth-child(14), .table td:nth-child(14) { width: 200px; } /* Position ID */
+
+        /* Special formatting for Joined date column */
+        .table td:nth-child(12) {
+            white-space: nowrap;
+            text-align: center;
+            font-family: monospace;
+}
+
+
+
+        .salary-cell {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .table-responsive {
+                border: 1px solid var(--border-color);
+                border-radius: 8px;
+            }
+            
+            .table thead {
+                display: none;
+            }
+            
+            .table tr {
+                margin-bottom: 15px;
+                display: block;
+                border-radius: 8px;
+                overflow: hidden;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            }
+            
+            .table td {
+                display: block;
+                text-align: right;
+                padding-left: 50%;
+                position: relative;
+                border-top: 1px solid var(--border-color);
+            }
+            
+            .table td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 15px;
+                width: 45%;
+                padding-right: 10px;
+                font-weight: 600;
+                text-align: left;
+                text-transform: uppercase;
+                font-size: 0.8rem;
+                color: var(--dark-bg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h2><i class="bi bi-people-fill me-2"></i>Employee Master Data</h2>
+                <div>
+                    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-light btn-sm">
+                        <i class="bi bi-arrow-left"></i> Dashboard
+                    </a>
+                    <button class="btn btn-outline-light btn-sm ms-2" onclick="window.print()">
+                        <i class="bi bi-printer"></i> Print
+                    </button>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Emp ID</th>
+                            <th>Username</th>
+                            <th>Name</th>
+                            <th>Code</th>
+                            <th>Gender</th>
+                            <th>Phone</th>
+                            <th>Location</th>
+                            <th>Designation</th>
+                            <th>Department</th>
+                            <th>Dept ID</th>
+                            <th>Salary</th>
+                            <th>Joined</th>
+                            <th>Role</th>
+                            <th>Position ID</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for employee in employees %}
+                        <tr>
+                            <td data-label="Emp ID">{{ employee.emp_id }}</td>
+                            <td data-label="Username">{{ employee.username }}</td>
+                            <td data-label="Name">{{ employee.emp_name }}</td>
+                            <td data-label="Code">{{ employee.emp_code }}</td>
+                            <td data-label="Gender">{{ employee.gender or 'N/A' }}</td>
+                            <td data-label="Phone">{{ employee.phone_num or 'N/A' }}</td>
+                            <td data-label="Location">{{ employee.location or 'N/A' }}</td>
+                            <td data-label="Designation">{{ employee.designation or 'N/A' }}</td>
+                            <td data-label="Department">{{ employee.department or 'N/A' }}</td>
+                            <td data-label="Dept ID">{{ employee.dept_id or 'N/A' }}</td>
+                            <td data-label="Salary" class="salary-cell">
+                                {% if employee.salary %}
+                                    ₹{{ "{:,.2f}".format(employee.salary) }}
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </td>
+                            <td data-label="Joined">
+                                {% if employee.joining_date %}
+                                    {{ employee.joining_date.strftime('%d-%m-%Y') }}
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </td>
+                            <td data-label="Role">{{ employee.role or 'N/A' }}</td>
+                            <td data-label="Position ID">{{ employee.position_id or 'N/A' }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Add any custom JavaScript here
+        document.addEventListener('DOMContentLoaded', function() {
+            // Example: Add click handler for rows if needed
+            document.querySelectorAll('tbody tr').forEach(row => {
+                row.addEventListener('click', function() {
+                    // Handle row click if needed
+                });
+            });
+        });
+    </script>
+</body>
+</html>
